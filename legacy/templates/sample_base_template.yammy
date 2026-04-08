@@ -1,0 +1,34 @@
+{% from 'macros.yammy' import include_text_section with context  %}
+{% from 'macros.yammy' import include_commands  %}
+
+
+{% set sample = protocol.samples.get(full_name) %}
+
+
+hr
+div.sample_div
+    - id {{ full_name }}
+    h2.section_title
+        | Sample {{ full_name }}
+
+
+    {{ include_text_section( section_name=full_name, include_section_title=False ) }}
+
+
+    {%- if sample.is_empty(include_subsamples=False) %}
+        No elements to display for {{ full_name }}.
+        {%- if sample.subsamples|count > 1 %}
+            There are {{ sample.subsamples|count }} sub-samples.
+        {%- elif sample.subsamples|count == 0 %}
+            There are no sub-samples.
+        {%- else %}
+            There is one sub-sample.
+        {% endif -%}
+    {% else %}
+        {% include 'sample_microscope_picture_base_template.yammy' %}
+        {% include 'sample_video_base_template.yammy' %}
+        {% include 'sample_optical_image_base_template.yammy' %}
+        {% include 'sample_attachment_base_template.yammy' %}
+    {% endif %}
+
+    {{ include_commands() }}

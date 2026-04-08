@@ -1,0 +1,17 @@
+{% from 'macros.yammy' import include_text_section with context %}
+
+{% if protocol.attachments|count %}
+    div.table_list_div
+        - id general_attachment
+        h2
+            | Attachments
+
+        | {{ include_text_section('Attachments', include_section_title=False) }}
+
+        div.general_attachment_div
+            {% for attach in protocol.attachments.values() %}
+
+                {% include  attach.template %}
+
+            {% endfor %}
+{% endif %}

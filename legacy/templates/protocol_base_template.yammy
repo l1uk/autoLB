@@ -1,0 +1,35 @@
+{% from 'macros.yammy' import include_text_section with context %}
+{% from 'macros.yammy' import get_ordered_sample_list with context %}
+
+div
+    - class elog_protocol_div
+
+    {% include 'title_base_template.yammy' %}
+
+    {{ include_text_section('Introduction', include_section_title=True) }}
+
+    {% block navigation_image %}
+    {% endblock navigation_image %}
+
+    {{ include_text_section('Samples', include_section_title=True) }}
+
+    {% include 'sample_list_base_template.yammy' %}
+
+    {% include 'general_optical_images_base_template.yammy' %}
+
+    {% if protocol.samples|count %}
+        {% for full_name in protocol.get_ordered_sample_list() %}
+            {% include 'sample_base_template.yammy' %}
+        {% endfor %}
+    {% else %}
+        h2
+            | No samples found for this protocol
+    {% endif %}
+
+    {{ include_text_section('Conclusion', include_section_title=True) }}
+
+    {% include 'general_attachment_base_template.yammy' %}
+
+    {% include 'footer_base_template.yammy' %}
+
+    {% include 'scripts.yammy' %}

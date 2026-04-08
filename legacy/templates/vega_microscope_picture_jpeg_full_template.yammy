@@ -1,0 +1,1 @@
+{% extends 'vega_microscope_picture_jpeg_template.yammy' %}

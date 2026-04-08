@@ -1,0 +1,19 @@
+{% from 'macros.yammy' import include_element_custom_row  %}
+
+table.attachment_table
+    - id {{ attach.params['anchor'] }}
+    {% block attachment_table_header_row %}
+        tr
+            td
+                <b>Filename: </b><a href='{{ (attach.params['path'])|convert_path_to_uri }}'>{{ attach.params['path'] }}</a>
+            td
+                <b>Type: </b> {{ attach.params['extension'] }}
+            td
+                <b>Size: </b> {{ attach.params['size']|fmt_file_size }}
+            td
+                <b>Creation date: </b> {{ attach.params['stat']|fmt_file_creation_date }}
+
+    {% endblock attachment_table_header_row %}
+    {% block attachment_table_custom_rows %}
+        {{ include_element_custom_row(protocol.yamlDict[attach.key]) }}
+    {% endblock attachment_table_custom_rows %}

@@ -1,0 +1,20 @@
+{% from 'macros.yammy' import include_hide_command with context %}
+
+{% if sample.optical_images|count %}
+    div
+        - class keep_together
+        div
+            - class list_title
+            div
+                h3.section_title
+                    - id {{ full_name }}optpics
+                    Optical image list for sample: {{ full_name }}
+            div
+                {{ include_hide_command( full_name + 'optpicstable') }}
+        div
+            - id {{ full_name }}optpicstable
+            - class optical_image_div
+            {% for image in sample.optical_images.values() %}
+                {% include image.template %}
+            {% endfor %}
+{% endif %}

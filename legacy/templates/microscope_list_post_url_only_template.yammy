@@ -1,0 +1,7 @@
+{% if url %}
+    div
+        - id analysis_link
+        h1 Analysis result link
+        p
+            | Click <a href='{{ url }}'>here</a> to open the analysis protocol
+{% endif %}

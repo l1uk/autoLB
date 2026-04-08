@@ -1,0 +1,65 @@
+{% extends 'microscope_picture_base_template.yammy' %}
+
+{% block microscope_picture_table_second_header %}
+th
+    <a href="{{ picture.params['pngurl'] }}">PNG</a>
+th
+    {% if 'cropped_url' in picture.params %}
+        <a href="{{ picture.params['path']|convert_path_to_uri }}">TIFF (full)</a>  / <a href="{{ picture.params['cropped_url']}}">TIFF (no databar)</a>
+    {% else %}
+        <a href="{{ picture.params['path']|convert_path_to_uri }}">TIFF</a>
+    {% endif %}
+{% endblock microscope_picture_table_second_header %}
+
+{% block microscope_picture_table_thumbnail_row_last_cols %}
+    td
+        | <b>ID: </b> {{ picture.params.get('id', 'Unknown') }}
+    td
+        | <b>HV: </b> {{ picture.params.get('hv', 'Unknown') }}
+    td
+        | <b>Beam: </b> {{ picture.params.get('beam', 'Unknown') }}
+    td
+        | <b>Magnification: </b> {{ picture.params.get('magnification', 'Unknown') }}
+    td
+        | <b>Resolution: </b> {{ picture.params.get('resolutionPrint', 'Unknown') }}
+{% endblock microscope_picture_table_thumbnail_row_last_cols %}
+
+{% block microscope_picture_table_additional_rows %}
+    tr
+        td
+            {% if picture.params.get('beam', 'Unknown').lower() == 'ibeam'%}
+                | <b> Beam current: </b> {{ picture.params.get('beamcurrent', 0)|float|fmt_physical('A') }}
+            {% else %}
+                | <b> Spot size: </b> {{ picture.params.get('spotsize', 'Unknown') }}
+            {% endif %}
+        td
+            | <b>Detector: </b> {{ picture.params.get('detector', 'Unknown') }}
+        td
+            | <b>Vacuum: </b> {{ picture.params.get('vacuum', 'Unknown') }}
+        td
+            | <b>User text: </b> {{ picture.params.get('userText', 'Unknown') }}
+        td
+            | <b>Filename: </b> {{ picture.params.get('fileName', 'Unknown') }}
+    tr
+        td
+            | <b>Dwell time / frame time: </b> {{ picture.params.get('dwell_time', '0')|float|fmt_physical('s') }} / {{ picture.params.get('frame_time', '0')|float|fmt_physical('s') }}
+        td
+            | <b>Frame average: </b> {{ picture.params.get('frame_average', '0') }}
+        td
+            | <b>Frame integration:  </b> {{ picture.params.get('frame_integration', '0') }}
+        td
+            | <b>Line integration: </b> {{ picture.params.get('line_integration', '0') }}
+        td
+            | <b>Scan interlacing: </b> {{ picture.params.get('scan_interlacing', '0') }}
+    tr
+        td
+            | <b>Stage X: </b> {{ picture.params.get('stage_x', '0')|float|fmt_physical('m') }}
+        td
+            | <b>Stage Y: </b> {{ picture.params.get('stage_y', '0')|float|fmt_physical('m') }}
+        td
+            | <b>Stage Z / WD: </b> {{ picture.params.get('stage_z', '0')|float|fmt_physical('m') }} / {{ picture.params.get('working_distance', '0')|float|fmt_physical('m') }}
+        td
+            | <b>Stage R: </b> {{ '{:.1f}°'.format(picture.params.get('stage_r', '0')) }}
+        td
+            | <b>Stage T: </b> {{ '{:.1f}°'.format(picture.params.get('stage_t', '0')) }}
+{% endblock microscope_picture_table_additional_rows %}

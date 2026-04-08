@@ -1,0 +1,23 @@
+{% from 'macros.yammy' import include_element_custom_row  %}
+
+{% if 'Caption' in protocol.yamlDict[navcam|get_filename_from_path] and protocol.yamlDict[navcam|get_filename_from_path]['Caption'] %}
+    {% set caption = protocol.yamlDict[navcam|get_filename_from_path]['Caption'] %}
+{% else %}
+    {% set caption = navcam|get_filename_from_path %}
+{% endif %}
+
+tr
+    - id {{ navcam | get_filename_from_path }}
+    td
+        - class navcam_cell
+        figure
+            - class image
+            a
+                - href {{ navcam | convert_path_to_uri }}
+                img
+                    - alt {{ navcam | get_filename_from_path }}
+                    - src {{ navcam | convert_path_to_uri }}
+#                    - width {{ protocol.navcam_thumb_max_width|float -10 }}
+            figcaption
+                | {{ caption }}
+        {{ include_element_custom_row(protocol.yamlDict[navcam|get_filename_from_path]) }}

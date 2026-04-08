@@ -1,0 +1,8 @@
+{% if protocol.elog_msg_id|count %}
+    script
+        function redirect_to_parent() {
+            location.replace("{{ protocol.connection_parameters.elog_hostname }}/{{ protocol.elog_logbook }}/{{ protocol.elog_msg_id[0] }}")
+        }
+{% else %}
+    <p>This page is part of a multi-page post. It is recommended to keep it even if it is empty.</p>
+{% endif %}

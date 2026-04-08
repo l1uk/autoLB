@@ -1,0 +1,20 @@
+{% extends 'protocol_base_template.yammy' %}
+{% block navigation_image %}
+{% if protocol.navcamimages|count %}
+    div
+        - class navigation_image_div
+        h2
+            - class section_title
+            Navigation camera images
+
+        {{ include_text_section('Navigation images', include_section_title=False) }}
+
+        table
+            - class navigation_image_table
+            {% for navcam in protocol.navcamimages %}
+                {% include 'navigation_image_template.yammy' %}
+            {% endfor %}
+
+{% endif %}
+{% endblock navigation_image %}
+

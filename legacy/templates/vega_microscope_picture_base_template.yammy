@@ -1,0 +1,50 @@
+{% extends 'microscope_picture_base_template.yammy' %}
+
+{% block microscope_picture_table_thumbnail_row_last_cols %}
+    td
+        <b>ID: </b> {{ picture.params.get('id', 'Unknown') }}
+    td
+        <b>HV: </b> {{ picture.params.get('HV')| float | fmt_physical(unit='V') }}
+    td
+        <b>SEM Detector: </b> {{ picture.params.get('detector', 'Unknown') }}
+    td
+        <b>Magnification: </b> {{ picture.params.get('magnification')| float | fmt_magnification }}
+    td
+        <b>Resolution: </b> {{ picture.params.get('pixel_x', 0) }} x {{ picture.params.get('pixel_x', 0) }}
+{% endblock microscope_picture_table_thumbnail_row_last_cols %}
+
+{% block microscope_picture_table_additional_rows %}
+    tr
+        td
+            <b>Emission current: </b> {{ picture.params.get('emission_current', 0) | float | fmt_physical(unit='A') }}
+        td
+            <b>Spot size: </b> {{ picture.params.get('spot_size', 0) | float | fmt_physical(unit='m') }}
+        td
+            <b>Vacuum: </b> {{ picture.params.get('vacuum', 0) | float | fmt_physical(unit='Torr') }}
+        td
+            {% set string_list = [ picture.params.get('protocol', 'Unknown'), picture.params.get('note', 'Unknown') ] %}
+            <b>User text: </b> {{ string_list | remove_from_list('Unknown') | join('/') }}
+        td
+            <b>Filename: </b> {{ picture.params.get('fileName') }}
+    tr
+        td
+            - colspan 2
+            <b>Scan mode: </b> {{ picture.params.get('scan_mode', 'Unknown') }}
+        td
+            <b>Dwell time: </b> {{ picture.params.get('dwell_time', 0) | float | fmt_physical('s') }}
+        td
+            <b>Scan rotation: </b> {{ '{:.1f}'.format(picture.params.get("scan_rotation", 0)) }}
+        td
+            <b>Scan speed: </b> {{ picture.params.get("scan_speed", 0) }}
+    tr
+        td
+            <b>Stage X: </b> {{ picture.params.get('stage_x', 0) |float | fmt_physical('m') }}
+        td
+            <b>Stage Y: </b> {{ picture.params.get('stage_y', 0) |float | fmt_physical('m') }}
+        td
+            <b>Stage Z / WD: </b> {{ picture.params.get('stage_z', 0) |float | fmt_physical('m') }} / {{ picture.params.get('WD', 0) |float | fmt_physical('m') }}
+        td
+            <b>Stage R: </b> {{ '{:.1f}'.format(picture.params.get("stage_r", 0)) }}
+        td
+            <b>Stage T: </b> {{ '{:.1f}'.format(picture.params.get("stage_t", 0)) }}
+{% endblock microscope_picture_table_additional_rows %}

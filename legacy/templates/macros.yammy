@@ -1,0 +1,69 @@
+{% macro include_text_section(section_name, include_section_title=False) -%}
+    {% if include_section_title %}
+        {% set id_cust = section_name  %}
+    {% else %}
+        {% set id_cust = section_name|string|replace(' ', '_') + '_customization' %}
+    {% endif %}
+    {% if section_name in protocol.yamlDict.keys() and protocol.yamlDict[section_name] %}
+        div.section_div
+            - id {{ id_cust }}
+            {% if 'Description' in protocol.yamlDict[section_name].keys() and protocol.yamlDict[section_name]['Description'] %}
+                {% if include_section_title %}
+                    h2.section_title
+                        | {{ section_name }}
+                {% endif %}
+                div.description
+                    | {{ protocol.yamlDict[section_name]['Description']|from_markdown }}
+            {% endif %}
+            {% if 'Extra' in protocol.yamlDict[section_name].keys() and protocol.yamlDict[section_name]['Extra'] %}
+                div.additional
+                    h3
+                        | Additional information
+                    {{ protocol.yamlDict[section_name]['Extra']|from_markdown }}
+            {% endif %}
+    {% endif %}
+
+
+{%- endmacro %}
+
+
+{% macro include_element_custom_row(yaml_dict) -%}
+    {% if 'Description' in yaml_dict %}
+        {% set pairs = [('description', 'Description'), ('additional', 'Extra')] %}
+        {% for class, key in pairs %}
+            {% if yaml_dict[key] %}
+                tr
+                    td
+                        - class {{ class }}
+                        - colspan 7
+                        | {{ yaml_dict[key]|from_markdown }}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{%- endmacro %}
+
+{% macro include_hide_command(div) %}
+    a.commands
+        - onclick hideDiv('{{ div }}')
+        - href javascript:void(0);
+        Hide the table
+{% endmacro %}
+
+{% macro include_microscope_logo() %}
+    {% if protocol.protocol_type == 'QuattroProtocol' %}
+        {% set logo = protocol.elog_hostname + '/images/quattro-logo.png'  %}
+    {% endif %}
+{% endmacro %}
+
+{% macro include_commands() %}
+    div
+        - class commands
+        p
+            a
+                - href #samplelist
+                | Go back to the sample list
+        p
+            a
+                - href #intro
+                | Go back home
+{% endmacro %}

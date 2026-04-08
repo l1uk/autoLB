@@ -1,0 +1,97 @@
+GENERIC:
+  EXCLUDE_PATTERNS:
+    - ^.*\.[Tt][Ee]?[Mm][Pp]$
+    - ^.*~\$.*\.[Dd][Oo][Cc][Xx]?$
+    - ^.*~.*\.\w{3,4}$
+    - ^.*\\Thumbs.db$
+
+IMAGEFILE:
+  EXCLUDE_PATTERNS:
+    - ^.*[Cc][Rr][Oo][Pp]{1,2}[Ee]?[Dd}?[\s\S]*[-_][Cc][Rr][Oo][Pp]{1,2}[Ee]?[Dd]?\.[Tt][Ii][Ff]{1,2}$
+    - ^.*\\[Ee][Xx][Cc][Ll][Uu][Dd][Ee][Dd]?\\[\s\S]*$
+    - ^.*\\[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Dd]?\\[\s\S]*$
+  MATCHING_PATTERNS:
+    - ^.*\.[Tt][Ii][Ff]{1,2}?$
+
+OPTICAL_IMAGE:
+  MATCHING_PATTERNS:
+    - ^.*\.[Jj][Pp][Ee]?[Gg]$
+    - ^.*\.[Jj][Pp][Ee]$
+    - ^.*\.[Jj][Ff]?[Ii][Ff]$
+    - ^.*\.[Pp][Nn][Gg]$
+  EXCLUDE_PATTERNS:
+    - ^.*\\[Ee][Xx][Cc][Ll][Uu][Dd][Ee][Dd]?\\[\s\S]*$  # excluded folder
+    - ^.*\\[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Dd]?\\[\s\S]*$  # recycled folder
+    - ^.*[Nn][Aa][Vv][Ii]?[Gg]?[Aa]?[Tt]?[Ii]?[Oo]?[Nn]?[-_\s]?[Cc][Aa][Mm][Ee]?[Rr]?[Aa]?  # nav cams
+    - ^.*\\[Tt][Hh][Uu][Mm][Bb][-_\s][Pp][Nn][Gg]\\[\s\S]*-[Tt][Hh][Uu][Mm][Bb]-[Pp][Nn][Gg]\.[Pp][Nn][Gg]$  # thumbnail folder
+    - ^.*\\[Pp][Nn][Gg]\\[\s\S]*-[Pp][Nn][Gg]\.[Pp][Nn][Gg]$  # png converted files
+
+ATTACHMENT:
+  MATCHING_PATTERNS:
+    - ^.*\.[Pp][Dd][Ff]$
+    - ^.*\.[Dd][Oo][Cc][Xx]?$
+    - ^.*\.[Xx][Ll][Ss][XxMm]?$
+    - ^.*\.[Ss][Tt][Gg]$
+    - ^.*\.[Pp][Tt][Ff]$
+    - ^.*\.[Ee][Xx][Pp]$
+    - ^.*\.[Tt][Xx][Tt]$
+    - ^.*\.[Rr][Tt][Xx]$ # bruker project files
+    - ^.*\.[Bb][Cc][Ff]$ # bruker map files
+    - ^.*\.[Ss][Pp][Xx]$ # bruker spectrum files
+    - ^.*\.[Rr][Tt][Oo]$ # bruker object files
+    - ^.*\.[Rr][Tt][Ll]$ # bruker linescan files
+    - ^.*\.[Rr][Pp][Tt]$ # bruker report files
+    - ^.*\.[Mm][Tt][Dd][Xx]?$ # bruker quantification method files.
+  EXCLUDE_PATTERNS:
+    - ^.*\\[Ee][Xx][Cc][Ll][Uu][Dd][Ee][Dd]?\\[\s\S]*$
+    - ^.*\\[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Dd]?\\[\s\S]*$
+    - ^.*\.[Uu][Rr][Ll]$
+    - ^.*~\$.*\.[Dd][Oo][Cc][Xx]?$
+    - ^.*~\$.*\.[Tt][Ee]?[Mm][Pp]$
+
+UPLOAD_ATTACHMENT:
+  MATCHING_PATTERNS:
+    - ^.*\.[Ee][Xx][Pp]$
+    - ^.*\.[Tt][Xx][Tx]$
+
+YAMLFILE:
+  MATCHING_PATTERNS:
+    - ^.*\.[Yy][Aa]?[Mm][Ll]
+
+NAVIGATION:
+  MATCHING_PATTERNS:
+    - ^.*[Nn][Aa][Vv][Ii]?[Gg]?[Aa]?[Tt]?[Ii]?[Oo]?[Nn]?[-_\s]?[Cc][Aa][Mm][Ee]?[Rr]?[Aa]?
+
+VIDEO:
+  MATCHING_PATTERNS:
+    - ^.*\.[Aa][Vv][Ii]
+    - ^.*\.[Mm][Pp]4
+  EXCLUDE_PATTERNS:
+    - ^.*[Ee][Xx][Cc][Ll][Uu][Dd][Ee][Dd]?[\s\S]*\.[Aa][Vv][Ii]$
+    - ^.*[Ee][Xx][Cc][Ll][Uu][Dd][Ee][Dd]?[\s\S]*\.[Mm][Pp]4$
+    - ^.*[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Dd]?[\s\S]*\.[Aa][Vv][Ii]$
+    - ^.*[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Dd]?[\s\S]*\.[Mm][Pp]4$
+
+HEADERFILE:
+  MATCHING_PATTERNS:
+    - ^.*\.[Hh][Dd][Rr]$
+
+JPEG:
+  MATCHING_PATTERNS:
+    - ^.*\.[Jj][Pp][Ee]?[Gg]$
+    - ^.*\.[Jj][Pp][Ee]$
+    - ^.*\.[Jj][Ff][Ii][Ff]$
+  EXCLUDE_PATTERNS:
+    - ^.*[-_]?[Oo][Pp][Tt][Ii]?[Cc]?[Aa]?[Ll]?\.[Jj][Pp][Ee]?[Gg]$ # optical in the name
+    - ^.*[-_]?[Oo][Pp][Tt][Ii]?[Cc]?[Aa]?[Ll]?\.[Jj][Pp][Ee]$
+    - ^.*[-_]?[Oo][Pp][Tt][Ii]?[Cc]?[Aa]?[Ll]?\.[Jj][Ff][Ii][Ff]$
+    - ^.*[Nn][Aa][Vv][Ii]?[Gg]?[Aa]?[Tt]?[Ii]?[Oo]?[Nn]?[-_\s]?[Cc][Aa][Mm][Ee]?[Rr]?[Aa]?  # nav cams
+
+PRE_PROCESS:
+  EXCLUDE_PATTERNS:
+    - ^.*\\[Tt][Hh][Uu][Mm][Bb][-_\s][Pp][Nn][Gg]\\[\s\S]*-[Tt][Hh][Uu][Mm][Bb]-[Pp][Nn][Gg]\.[Pp][Nn][Gg]$  # thumbnail folder
+    - ^.*\\[Pp][Nn][Gg]\\[\s\S]*-[Pp][Nn][Gg]\.[Pp][Nn][Gg]$  # png converted files
+    - ^.*\\[Ee][Xx][Cc][Ll][Uu][Dd][Ee][Dd]?\\[\s\S]*$ # excluded folder
+    - ^.*\\[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Dd]?\\[\s\S]*$ # recycle folder
+    - ^.*~\$.*\.[Dd][Oo][Cc][Xx]?$ # tmp files
+    - ^.*~\$.*\.[Tt][Ee]?[Mm][Pp]$ # tmp files

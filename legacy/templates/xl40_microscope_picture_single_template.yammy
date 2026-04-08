@@ -1,0 +1,1 @@
+{% extends 'xl40_microscope_picture_base_template.yammy' %}

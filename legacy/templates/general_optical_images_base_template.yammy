@@ -1,0 +1,21 @@
+{% from 'macros.yammy' import include_text_section with context %}
+
+{% if protocol.optical_images|count %}
+
+    div.table_list_div
+        - id general_optical_image_section
+        h2
+            - class section_title
+            | General optical images
+
+        | {{ include_text_section('Optical images', include_section_title=False) }}
+
+        {% if protocol.optical_images|count %}
+        div.general_optical_image_div
+            {% for image in protocol.optical_images.values() %}
+
+                {% include  image.template %}
+
+            {% endfor %}
+        {% endif %}
+{% endif %}

@@ -1,0 +1,30 @@
+{% extends 'vega_microscope_picture_base_template.yammy' %}
+
+{% block microscope_picture_table_second_header %}
+th
+    - colspan 2
+    <a href="{{ picture.params['path']|convert_path_to_uri }}">JPG</a>
+{% endblock microscope_picture_table_second_header %}
+
+{% block microscope_picture_table_thumbnail_row %}
+    {% if 'Caption' in protocol.yamlDict[picture.key] and protocol.yamlDict[picture.key]['Caption'] %}
+        {% set caption = protocol.yamlDict[picture.key]['Caption'] %}
+    {% else %}
+        {% set caption = picture.params['fileName'] %}
+    {% endif %}
+    tr
+        td
+            - class thumb_cell
+            - colspan 2
+            - rowspan {{ picture.params['thumb_rowspan'] }}
+            figure.image
+                a
+                    - href {{ picture.params['path']|convert_path_to_uri }}
+                    img
+#                        - width {{ picture.params['thumb_max_width']|int  - 10 }}
+                        - alt {{ picture.params['fileName'] }}
+                        - src {{ picture.params['path']|convert_path_to_uri }}
+                figcaption
+                    {{ caption }}
+
+{% endblock microscope_picture_table_thumbnail_row %}

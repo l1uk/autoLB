@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>About</class>
+ <widget class="QDialog" name="About">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>283</width>
+    <height>258</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>About Autologbook</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/resources/icons8-logbook-64.png</normaloff>:/resources/icons8-logbook-64.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;img src=&quot;:/resources/icons8-logbook-64.png&quot;/&gt;&lt;/p&gt;&lt;p
+       align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;AUTOLOGBOOK v0.1.8&lt;/p&gt;&lt;p
+       align=&quot;center&quot;&gt;A script for automatic logbook generation in microscopy&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;GitHub
+       &lt;a href=&quot;https://github.com/abulgher/autologbook&quot;&gt;&lt;span style=&quot; text-decoration:
+       underline; color:#0000ff;&quot;&gt;Source Code&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(C)
+       Antonio Bulgheroni - 2022&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;a href=&quot;https://icons8.com/icon/pNYOTp5DinZ3/copy&quot;&gt;&lt;span
+       style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Copy&lt;/span&gt;&lt;/a&gt; icon by &lt;a href=&quot;https://icons8.com&quot;&gt;&lt;span
+       style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Icons8&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+      </string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>

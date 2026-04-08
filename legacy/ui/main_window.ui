@@ -1,0 +1,1209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <author>Antonio Bulgheroni</author>
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>862</width>
+    <height>675</height>
+   </rect>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
+  <property name="windowTitle">
+   <string>Autologbook GUI</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/resources/icons8-logbook-64.png</normaloff>:/resources/icons8-logbook-64.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="1">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Protocol folder</string>
+          </property>
+          <property name="buddy">
+           <cstring>protocol_folder_text</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLineEdit" name="protocol_folder_text">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>400</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3" colspan="4">
+         <widget class="QPushButton" name="select_protocol_folder">
+          <property name="toolTip">
+           <string>Select the protocol folder</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Click here to select a folder to be monitored. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;It is recommended to name this folder as ProtocolID-Project-Responsible as, for example, 2204123-RADCAS-Bulgheroni&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Select folder</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resource.qrc">
+            <normaloff>:/resources/icons8-pictures-folder-48.png</normaloff>:/resources/icons8-pictures-folder-48.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="mirror_checkBox">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Activate mirroring&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Activating the mirroring will start the automatic copy of all files present in the protocol folder to the mirroring folder.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string>Activate mirroring</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Mirroring folder</string>
+          </property>
+          <property name="buddy">
+           <cstring>mirroring_folder_text</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="mirroring_folder_text">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>400</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3" colspan="4">
+         <widget class="QPushButton" name="select_mirroring_folder">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a mirroring folder&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select a mirroring folder&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This folder &lt;span style=&quot; font-weight:600;&quot;&gt;must &lt;/span&gt;have be named as ProtocolID-Project-Responsible and must be on R:\A226\Results. If not, the watchdog won't be able to start.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Select folder</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resource.qrc">
+            <normaloff>:/resources/icons8-link-folder-48.png</normaloff>:/resources/icons8-link-folder-48.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="label_3">
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string>Select microscope </string>
+          </property>
+          <property name="buddy">
+           <cstring>select_microscope_comboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QComboBox" name="select_microscope_comboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>400</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the microscope as appropriate.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <item>
+           <property name="text">
+            <string extracomment="FEI Thermofisher Quattro SEM">Quattro</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string extracomment="FEI Thermofisher Versa 3D FIB">Versa</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string extracomment="Philips XL40">XL40-GB</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>XL40-Cold</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string extracomment="Vega">Vega</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>TEM</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLabel" name="GUIThreadLabel">
+          <property name="text">
+           <string>G:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
+         <widget class="QLabel" name="gui_thread_status">
+          <property name="minimumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Status of the GUI thread</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="resource.qrc">:/resources/icons8-red-circle-48.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="custom_ownership_checkbox">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Activate custom protocol parameters (ID / Projet name / Project responsible)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Use custom parameters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1" colspan="2">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Protocol ID</string>
+            </property>
+            <property name="buddy">
+             <cstring>projectID_field</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="projectID_field">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Project name</string>
+            </property>
+            <property name="buddy">
+             <cstring>project_name_field</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="project_name_field">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Responsible</string>
+            </property>
+            <property name="buddy">
+             <cstring>responsible_field</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="responsible_field">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="3" column="3">
+         <widget class="QLabel" name="AutoThreadLabel">
+          <property name="text">
+           <string>A:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="4">
+         <widget class="QLabel" name="auto_thread_status">
+          <property name="minimumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Status of the autologbook watchdog thread</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="resource.qrc">:/resources/icons8-red-circle-48.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="5">
+         <widget class="QLabel" name="auto_obs_status">
+          <property name="minimumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Status of the autologbook watchdog observer thread</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="resource.qrc">:/resources/icons8-red-circle-48.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="6">
+         <widget class="QLabel" name="auto_emi_status">
+          <property name="minimumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Status of the autologbook watchdog emitter thread</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="resource.qrc">:/resources/icons8-red-circle-48.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QPushButton" name="watchdog_pushbutton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start the watchog&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="whatsThis">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Start the watchdog&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The watchdog will monitor the protocol or the mirroring  folder for interesting new file and add them to eLOG entry automatically.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;At least one between the protocol and the mirroring folder must be rooted in R:\A226\Results, otherwise the watchdog won't be started.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Start watchdog</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resource.qrc">
+              <normaloff>:/resources/icons8-play-48.png</normaloff>:/resources/icons8-play-48.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="open_explorer_pushbuttom">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Open the protocol folder</string>
+            </property>
+            <property name="whatsThis">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Open protocol folder&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Click this button to open a file explorer pointing to either the protocol folder or the mirroring one if the mirroing option is activated.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Open protocol folder</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resource.qrc">
+              <normaloff>:/resources/icons8-opened-folder-48.png</normaloff>:/resources/icons8-opened-folder-48.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="open_browser_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open the protocol webpage&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Open protocol webpage</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resource.qrc">
+              <normaloff>:/resources/icons8-website-48.png</normaloff>:/resources/icons8-website-48.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="edit_custom_html_file_pushbutton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string extracomment="Open the default text editor to modify the customized HTML file">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open the interactive protocol editor&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Open protocol editor</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resource.qrc">
+              <normaloff>:/resources/icons8-pencil-48.png</normaloff>:/resources/icons8-pencil-48.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Logging messages</string>
+            </property>
+            <property name="buddy">
+             <cstring>log_message_box</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="log_message_box">
+            <property name="minimumSize">
+             <size>
+              <width>500</width>
+              <height>400</height>
+             </size>
+            </property>
+            <property name="lineWrapMode">
+             <enum>QPlainTextEdit::NoWrap</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>308</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="clean_logger_pushbutton">
+            <property name="text">
+             <string>Clear logger</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="save_logger_pushbutton">
+            <property name="text">
+             <string>Save logger...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resource.qrc">
+              <normaloff>:/resources/icons8-save-as-48.png</normaloff>:/resources/icons8-save-as-48.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>862</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="menuLoad_recent">
+     <property name="title">
+      <string>Load recent</string>
+     </property>
+    </widget>
+    <addaction name="action_Load_experiment"/>
+    <addaction name="menuLoad_recent"/>
+    <addaction name="actionSave_experiment"/>
+    <addaction name="separator"/>
+    <addaction name="actionClear_logger"/>
+    <addaction name="actionSave_logger"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
+   </widget>
+   <widget class="QMenu" name="menuRun">
+    <property name="title">
+     <string>Run</string>
+    </property>
+    <addaction name="action_toggle_watchdog"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionChange_user_credentials"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_configuration_file"/>
+    <addaction name="actionEdit_configuration"/>
+    <addaction name="actionReset_to_default"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout_Autologbook"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menuRun"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_Load_experiment">
+   <property name="text">
+    <string>&amp;Load experiment...</string>
+   </property>
+  </action>
+  <action name="actionSave_experiment">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/icons8-save-as-48.png</normaloff>:/resources/icons8-save-as-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save experiment...</string>
+   </property>
+  </action>
+  <action name="actionSta_rt_watchdog">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/icons8-play-48.png</normaloff>:/resources/icons8-play-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Sta&amp;rt watchdog</string>
+   </property>
+  </action>
+  <action name="actionStop_watchdog">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/icons8-stop-sign-48.png</normaloff>:/resources/icons8-stop-sign-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Stop watchdog</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>&amp;Close</string>
+   </property>
+  </action>
+  <action name="actionClear_logger">
+   <property name="text">
+    <string>Clea&amp;r logger</string>
+   </property>
+  </action>
+  <action name="actionSave_logger">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/icons8-save-as-48.png</normaloff>:/resources/icons8-save-as-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save logger...</string>
+   </property>
+  </action>
+  <action name="actionLoad_configuration_file">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/icons8-opened-folder-48.png</normaloff>:/resources/icons8-opened-folder-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Load configuration file...</string>
+   </property>
+  </action>
+  <action name="actionSave_current_configuration">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/icons8-save-as-48.png</normaloff>:/resources/icons8-save-as-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save current configuration...</string>
+   </property>
+  </action>
+  <action name="actionReset_to_default">
+   <property name="text">
+    <string>Reset to default...</string>
+   </property>
+  </action>
+  <action name="actionSet_engine">
+   <property name="text">
+    <string>Set mirroring engine...</string>
+   </property>
+  </action>
+  <action name="actionAbout_Autologbook">
+   <property name="text">
+    <string>About Autologbook...</string>
+   </property>
+  </action>
+  <action name="actionEdit_configuration">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/icons8-support-48.png</normaloff>:/resources/icons8-support-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit configuration...</string>
+   </property>
+  </action>
+  <action name="actionChange_user_credentials">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/icons8-user-secured-48.png</normaloff>:/resources/icons8-user-secured-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Change user credentials...</string>
+   </property>
+  </action>
+  <action name="action_toggle_watchdog">
+   <property name="text">
+    <string>Toggle watchdog</string>
+   </property>
+   <property name="toolTip">
+    <string>Start / stop the watchdog</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionRecent1">
+   <property name="text">
+    <string>Recent1</string>
+   </property>
+  </action>
+  <action name="actionRecent2">
+   <property name="text">
+    <string>Recent2</string>
+   </property>
+  </action>
+  <action name="actionRecent3">
+   <property name="text">
+    <string>Recent3</string>
+   </property>
+  </action>
+  <action name="actionRecent4">
+   <property name="text">
+    <string>Recent4</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>protocol_folder_text</tabstop>
+  <tabstop>select_protocol_folder</tabstop>
+  <tabstop>mirror_checkBox</tabstop>
+  <tabstop>mirroring_folder_text</tabstop>
+  <tabstop>select_mirroring_folder</tabstop>
+  <tabstop>select_microscope_comboBox</tabstop>
+  <tabstop>custom_ownership_checkbox</tabstop>
+  <tabstop>projectID_field</tabstop>
+  <tabstop>project_name_field</tabstop>
+  <tabstop>responsible_field</tabstop>
+  <tabstop>watchdog_pushbutton</tabstop>
+  <tabstop>open_explorer_pushbuttom</tabstop>
+  <tabstop>edit_custom_html_file_pushbutton</tabstop>
+  <tabstop>log_message_box</tabstop>
+  <tabstop>clean_logger_pushbutton</tabstop>
+  <tabstop>save_logger_pushbutton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>mirror_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mirroring_folder_text</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>403</x>
+     <y>73</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mirror_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>select_mirroring_folder</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>24</x>
+     <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>850</x>
+     <y>85</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>watchdog_pushbutton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>toggled_watchdog(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>182</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>280</x>
+     <y>512</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>open_explorer_pushbuttom</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_browser()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>427</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>462</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>edit_custom_html_file_pushbutton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_yaml_editor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>849</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>431</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>select_protocol_folder</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_protocol_folder()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>850</x>
+     <y>55</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>695</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>select_mirroring_folder</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_mirroring_folder()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>850</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>689</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>watchdog_pushbutton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>open_explorer_pushbuttom</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>427</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>select_microscope_comboBox</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>changed_microscope()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>41</x>
+     <y>101</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mirror_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>toggled_mirroring(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>26</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>6</x>
+     <y>35</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>protocol_folder_text</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>validate_inputs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>93</x>
+     <y>32</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mirroring_folder_text</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>validate_inputs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>405</x>
+     <y>80</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>45</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clean_logger_pushbutton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>clear_logger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>746</x>
+     <y>641</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>47</x>
+     <y>542</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>save_logger_pushbutton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_logger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>754</x>
+     <y>641</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>115</x>
+     <y>560</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>custom_ownership_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>projectID_field</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>44</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>235</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>custom_ownership_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>project_name_field</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>15</x>
+     <y>131</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>450</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>custom_ownership_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>responsible_field</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>640</x>
+     <y>132</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>custom_ownership_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>toggled_custom_ownership(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>15</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>150</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>projectID_field</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>validate_inputs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>336</x>
+     <y>127</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>336</x>
+     <y>639</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>project_name_field</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>validate_inputs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>531</x>
+     <y>130</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>377</x>
+     <y>641</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>responsible_field</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>validate_inputs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>742</x>
+     <y>136</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>549</x>
+     <y>642</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>open_browser_button</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_protocol_webpage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>469</x>
+     <y>160</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>556</x>
+     <y>141</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>toggled_watchdog(bool)</slot>
+  <slot>open_browser()</slot>
+  <slot>open_yaml_editor()</slot>
+  <slot>open_protocol_folder()</slot>
+  <slot>open_mirroring_folder()</slot>
+  <slot>changed_microscope()</slot>
+  <slot>toggled_mirroring(bool)</slot>
+  <slot>protocol_folder_text_changed()</slot>
+  <slot>mirroring_folder_text_changed()</slot>
+  <slot>validate_inputs()</slot>
+  <slot>clear_logger()</slot>
+  <slot>save_logger()</slot>
+  <slot>toggled_custom_ownership(bool)</slot>
+  <slot>open_protocol_webpage()</slot>
+ </slots>
+</ui>

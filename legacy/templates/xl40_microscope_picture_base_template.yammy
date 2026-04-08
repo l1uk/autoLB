@@ -1,0 +1,39 @@
+{% extends 'microscope_picture_base_template.yammy' %}
+
+{% block microscope_picture_table_thumbnail_row_last_cols %}
+    td
+        <b>ID: </b> {{ picture.params.get('id', 'Unknown') }}
+    td
+        {% if 'HV_value' in picture.params.keys() and 'HV_um' in picture.params.keys() %}
+            <b>HV: </b> {{ picture.params.get('HV_value') }} {{ picture.params.get('HV_um') }}
+        {% else %}
+            <b>HV: </b> Unknown
+        {% endif %}
+    td
+        <b>Scan name: </b> {{ picture.params.get('scan_name', 'Unknown') }}
+    td
+        {% if 'magnification' in picture.params.keys() %}
+            <b>Magnification: </b> {{ picture.params.get('magnification', 0) | float | fmt_magnification }}
+        {% else %}
+            <b>Magnification: </b> Unknown
+        {% endif %}
+    td
+        <b>Resolution: </b> {{ picture.params.get('pixel_x', 0) }} x {{ picture.params.get('pixel_x', 0) }}
+{% endblock microscope_picture_table_thumbnail_row_last_cols %}
+
+{% block microscope_picture_table_additional_rows %}
+{% if picture.params['has_stage_info'] %}
+tr
+    {% for coord in ['x', 'y', 'z', 'tilt', 'rotation'] %}
+        {% set value = 'stage_' + coord %}
+        {% set um = value + '_um' %}
+        td
+           <b>Stage {{ coord }}: </b> {{ picture.params.get(value) }} {{ picture.params.get(um) }}
+    {% endfor %}
+{% endif %}
+tr
+    td
+        - colspan 5
+        <b>User text: </b> {{ picture.params.get('user_text', '') }}
+
+{% endblock microscope_picture_table_additional_rows %}

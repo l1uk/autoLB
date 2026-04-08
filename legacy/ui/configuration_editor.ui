@@ -1,0 +1,1338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>configurationDialog</class>
+ <widget class="QDialog" name="configurationDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>678</width>
+    <height>753</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Configuration editor</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_7">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <item>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="elog_group_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>300</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>General ELOG parameters</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="elog_user_label">
+              <property name="text">
+               <string>ELOG User name</string>
+              </property>
+              <property name="buddy">
+               <cstring>elog_user_field</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="3">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>ELOG User password</string>
+              </property>
+              <property name="buddy">
+               <cstring>elog_password_field</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3" colspan="2">
+             <widget class="QLineEdit" name="elog_password_field">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;ELOG Password&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In order to be able to post on the ELOG, this automatic tool needs to use access credentials. Put here the password you want to use.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="echoMode">
+               <enum>QLineEdit::Password</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Max auth. errors</string>
+              </property>
+              <property name="buddy">
+               <cstring>elog_max_auth_error_field</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLabel" name="elog_hostname_label">
+              <property name="text">
+               <string>ELOG hostname</string>
+              </property>
+              <property name="buddy">
+               <cstring>elog_hostname_field</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="elog_port_label">
+              <property name="text">
+               <string>ELOG port</string>
+              </property>
+              <property name="buddy">
+               <cstring>elog_port_field</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Use SSL</string>
+              </property>
+              <property name="buddy">
+               <cstring>elog_ssl_check_box</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="timeout_label">
+              <property name="text">
+               <string>Timeout (s)</string>
+              </property>
+              <property name="buddy">
+               <cstring>elog_timeout_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0" colspan="3">
+             <widget class="QLabel" name="attempts_on_timeout_label">
+              <property name="text">
+               <string>Attempts on timeout</string>
+              </property>
+              <property name="buddy">
+               <cstring>attempts_on_timeout_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0" colspan="4">
+             <widget class="QLabel" name="waiting_time_between_timeout_attempts_label">
+              <property name="text">
+               <string>Waiting time  between timeout attempts (s)</string>
+              </property>
+              <property name="buddy">
+               <cstring>waiting_time_between_timeout_attempts_spingbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="4">
+             <widget class="QDoubleSpinBox" name="waiting_time_between_timeout_attempts_spingbox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Waiting time between timeout attempts&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Before repeated another of network communication after a timeout, the system will wait a number of seconds specified by this variable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="value">
+               <double>5.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3" colspan="2">
+             <widget class="QSpinBox" name="elog_max_auth_error_field">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;ELOG authentication errrors&lt;/span&gt;&lt;/p&gt;&lt;p&gt;After a certain number of authethication errors, the software will give up allowing the user to find the right username and password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3" colspan="2">
+             <widget class="QLineEdit" name="elog_user_field">
+              <property name="whatsThis">
+               <string extracomment="The user name for the ELOG">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;ELOG User Name&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In order to be able to post on the ELOG, this automatic tool needs to use access credentials. Put here the user name you want to use&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3" colspan="2">
+             <widget class="QLineEdit" name="elog_hostname_field">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;ELOG Hostname&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the URL where the ELOG is responding. If you have no idea, ask your system administrator.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="echoMode">
+               <enum>QLineEdit::Normal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="3">
+             <widget class="QCheckBox" name="elog_ssl_check_box">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="3" colspan="2">
+             <widget class="QSpinBox" name="elog_port_field">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;ELOG Port&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the TCP/IP port where the ELOG is listening. If you have no idea, ask your system administrator.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="maximum">
+               <number>100000</number>
+              </property>
+              <property name="value">
+               <number>8080</number>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="3" colspan="2">
+             <widget class="QDoubleSpinBox" name="elog_timeout_spinbox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Delay after which a server request is aborted because of timeout.</string>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Timeout&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In order to avoid the GUI to freeze due to a not responsive ELOG server, after a certain number of seconds defined by this timeout variable all network communication attempts non receiving any answer will be termined.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="value">
+               <double>10.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="3" colspan="2">
+             <widget class="QSpinBox" name="attempts_on_timeout_spinbox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Attempts on timeout&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In case of a timeout on network communication, the system will retry a maximum number of time specified by this variable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QGroupBox" name="image_server_group_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>300</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Image server</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="1" column="0">
+             <widget class="QLabel" name="server_root_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Server root</string>
+              </property>
+              <property name="buddy">
+               <cstring>server_root_field</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QLabel" name="img_thumb_size_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Thumbnail size (px)</string>
+              </property>
+              <property name="buddy">
+               <cstring>img_thumb_size_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QSpinBox" name="custom_id_start_spinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Custom ID start&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If the picture ID is not provided in the filename or not recorded in the TIFF tags, then a custom one will be generated starting from the value of this variable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="maximum">
+               <number>999999</number>
+              </property>
+              <property name="value">
+               <number>1000</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="base_path_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Base path</string>
+              </property>
+              <property name="buddy">
+               <cstring>base_path_field</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" colspan="2">
+             <widget class="QLineEdit" name="base_path_field">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Image server base path&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Images are not uploaded to the ELOG because they are generally too many for a single post. All images (TIF, PNG and Thumbnail) are served by another webserver. &lt;/p&gt;&lt;p&gt;This base path is the location where all images are saved. &lt;/p&gt;&lt;p&gt;For example. Assume that:&lt;/p&gt;&lt;p&gt;- base path is &lt;span style=&quot; font-weight:600;&quot;&gt;c:\Pictures\Microscopy&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- server roor is &lt;span style=&quot; font-weight:600;&quot;&gt;https://my-image-server/pics&lt;/span&gt;&lt;/p&gt;&lt;p&gt;So a picture saved in c:\Pictures\Microscopy\MyExperiment\Sample\image1.tif will be made available as https://my-image-server/pics/MyExperiment/Sample/image1.tif&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2">
+             <widget class="QSpinBox" name="custom_id_tiff_tag_spinBok">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Custom TIFF Tag&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The value of the picture ID is written in the image TIFF tags. The value of this variable represent the TIFF tag to be used. &lt;/p&gt;&lt;p&gt;Be careful when changing this value!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="maximum">
+               <number>999999</number>
+              </property>
+              <property name="value">
+               <number>37510</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLabel" name="label_6">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Custom ID start</string>
+              </property>
+              <property name="buddy">
+               <cstring>custom_id_start_spinBox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="QLabel" name="label_9">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>FEI Crop databar</string>
+              </property>
+              <property name="buddy">
+               <cstring>fei_crop_databar_checkbok</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="2">
+             <widget class="QCheckBox" name="fei_crop_databar_checkbok">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;FEI Crop databar&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Perform automatic databar cropping of FEI images. The original image with databar will also be stored, meaning that activating this option will double the disk space usage for the project.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QToolButton" name="search_basepath_button">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="resource.qrc">
+                <normaloff>:/resources/icons8-opened-folder-30.png</normaloff>:/resources/icons8-opened-folder-30.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" colspan="2">
+             <widget class="QLineEdit" name="server_root_field">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Image server root&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Images are not uploaded to the ELOG because they are generally too many for a single post. All images (TIF, PNG and Thumbnail) are served by another webserver. &lt;/p&gt;&lt;p&gt;This server root is a URL pointing to the base of the image server.&lt;/p&gt;&lt;p&gt;For example. Assume that:&lt;/p&gt;&lt;p&gt;- base path is &lt;span style=&quot; font-weight:600;&quot;&gt;c:\Pictures\Microscopy&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- server roor is &lt;span style=&quot; font-weight:600;&quot;&gt;https://my-image-server/pics&lt;/span&gt;&lt;/p&gt;&lt;p&gt;So a picture saved in c:\Pictures\Microscopy\MyExperiment\Sample\image1.tif will be made available as https://my-image-server/pics/MyExperiment/Sample/image1.tif&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QLabel" name="label_8">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>FEI Auto calibrate</string>
+              </property>
+              <property name="buddy">
+               <cstring>fei_auto_calibrated_checkbok</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QSpinBox" name="img_thumb_size_spinbox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Thumbnail size&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Select the width in pixel of the png thumbnail pictures.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="suffix">
+               <string/>
+              </property>
+              <property name="maximum">
+               <number>1024</number>
+              </property>
+              <property name="value">
+               <number>400</number>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="QLabel" name="label_7">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Custom TIFF Tag</string>
+              </property>
+              <property name="buddy">
+               <cstring>custom_id_tiff_tag_spinBok</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="5" column="2">
+             <widget class="QCheckBox" name="fei_auto_calibrated_checkbok">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;FEI Auto calibrate&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Perform automatic calibration of FEI images when adding them to the protocol. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="autologbook_watchdog_group_box">
+         <property name="title">
+          <string>Autologbook watchdog</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="1" column="0">
+             <widget class="QLabel" name="autologbook_wait_min_label">
+              <property name="text">
+               <string>Minimum waiting time (s)</string>
+              </property>
+              <property name="buddy">
+               <cstring>autologbook_wait_min_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QDoubleSpinBox" name="autologbook_observer_timeout_spinbox">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Autologbook observer timeout&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Perform a polling request of the autologbook observer after the number of seconds specified by this variable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="autologbook_max_attempts_spinbox">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Autologobook watchdog maximum number of attempts&lt;/span&gt;&lt;/p&gt;&lt;p&gt;While the autologbook watchdog is monitoring the protocol folder and try to operate on a file, it could be that for several reasons the process is failing.&lt;/p&gt;&lt;p&gt;In this case the same process will be attempted up to a maximum number of trials (this parameter) with an increasing waiting time in between from minimum waiting time to maximum waititng time with a waiting time increment.  &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="autologbook_wait_max_label">
+              <property name="text">
+               <string>Maximum waiting time (s) </string>
+              </property>
+              <property name="buddy">
+               <cstring>autologbook_wait_max_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QDoubleSpinBox" name="autologbook_min_delay_spinbox">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Delay between ELOG posts&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If many filesystem events are detected by the autologbook watchdog, there could be a high number of almost identical ELOG message posted in a short period of time. All these posts are not only saturating the band and riskying to kill the ELOG server, but they are also useless. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;For this reason, two ELOG posts must be separated at least by the number of seconds specified by this parameter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="decimals">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <double>3600.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>600.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBox" name="autologbook_wait_min_spinbox">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Autologobook watchdog minimum waiting time&lt;/span&gt;&lt;/p&gt;&lt;p&gt;While the autologbook watchdog is monitoring the protocol folder and try to operate on a file, it could be that for several reasons the process is failing.&lt;/p&gt;&lt;p&gt;In this case the same process will be attempted up to a maximum number of trials with an increasing waiting time in between from minimum waiting time (this parameter) to maximum waititng time with a waiting time increment.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="autologbook_wait_max_spinbox">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Autologobook watchdog maximum waiting time&lt;/span&gt;&lt;/p&gt;&lt;p&gt;While the autologbook watchdog is monitoring the protocol folder and try to operate on a file, it could be that for several reasons the process is failing.&lt;/p&gt;&lt;p&gt;In this case the same process will be attempted up to a maximum number of trials with an increasing waiting time in between from minimum waiting time to maximum waititng time (this parameter) with a waiting time increment.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <double>5.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="autologbook_max_attempts_label">
+              <property name="text">
+               <string>Maximum number of attempts</string>
+              </property>
+              <property name="buddy">
+               <cstring>autologbook_max_attempts_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="autologbook_wait_increment_label">
+              <property name="text">
+               <string>Waiting time increment</string>
+              </property>
+              <property name="buddy">
+               <cstring>autologbook_wait_increment_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="autologbook_wait_increment_spinbox">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Autologobook watchdog waiting time increment&lt;/span&gt;&lt;/p&gt;&lt;p&gt;While the autologbook watchdog is monitoring the protocol folder and try to operate on a file, it could be that for several reasons the process is failing.&lt;/p&gt;&lt;p&gt;In this case the same process will be attempted up to a maximum number of trials with an increasing waiting time in between from minimum waiting time to maximum waititng time with a waiting time increment (this parameter).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Observer timeout (s)</string>
+              </property>
+              <property name="buddy">
+               <cstring>autologbook_observer_timeout_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="autologbook_min_delay_label">
+              <property name="text">
+               <string>Min delay between ELOG posts (s)</string>
+              </property>
+              <property name="buddy">
+               <cstring>autologbook_min_delay_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QGroupBox" name="mirroring_group_box">
+         <property name="title">
+          <string>Mirroring watchdog</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="mirroring_observer_timeout_spinbox">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Mirroring observer timeout&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Perform a polling request of the autologbook observer after the number of seconds specified by this variable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.200000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBox" name="mirroring_wait_spinbox">
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Observer timeout (s)</string>
+              </property>
+              <property name="buddy">
+               <cstring>mirroring_observer_timeout_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="mirroring_wait_label">
+              <property name="text">
+               <string>Waiting time (s)</string>
+              </property>
+              <property name="buddy">
+               <cstring>mirroring_wait_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="mirroring_max_attempts_spinbox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <spacer name="verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="mirroring_max_attempts_label">
+              <property name="text">
+               <string>Max number of attempts</string>
+              </property>
+              <property name="buddy">
+               <cstring>mirroring_max_attempts_spinbox</cstring>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="microscope_group_box">
+       <property name="title">
+        <string>Microscope specific</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <item>
+         <widget class="QTabWidget" name="microscope_tabs">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="tab">
+           <attribute name="title">
+            <string>Protocol list</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>Microscopy Protocol list logbook</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="microscopy_protocol_list"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="quattro_tab">
+           <attribute name="title">
+            <string>Quattro</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QLabel" name="quattro_elog_logbook_label">
+                <property name="text">
+                 <string>Quattro ELOG logbook</string>
+                </property>
+                <property name="buddy">
+                 <cstring>quattro_elog_logbook_field</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="quattro_elog_logbook_field">
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Quattro ELOG logbook&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Specify here the name of the Quattro logbook.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="img_navacam_size_label">
+                <property name="text">
+                 <string>NavCam Image size (px)</string>
+                </property>
+                <property name="buddy">
+                 <cstring>quattro_navcam_size_spinbox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="quattro_navcam_size_spinbox">
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Quattro navigation image size&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Specify here the size in pixel of the navigation image.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="suffix">
+                 <string/>
+                </property>
+                <property name="maximum">
+                 <number>1024</number>
+                </property>
+                <property name="value">
+                 <number>500</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="versa_tab">
+           <attribute name="title">
+            <string>Versa</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QLabel" name="versa_elog_logbook_label">
+                <property name="text">
+                 <string>Versa ELOG logbook</string>
+                </property>
+                <property name="buddy">
+                 <cstring>versa_elog_logbook_field</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="versa_elog_logbook_field">
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Versa ELOG logbook&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Specify here the name of the Versa logbook.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_2">
+           <attribute name="title">
+            <string>Vega</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QLabel" name="label_14">
+                <property name="text">
+                 <string>Vega Logbook</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="vega_elog_logbook_field"/>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="vega_auto_calibrated_checkbok">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;FEI Auto calibrate&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Perform automatic calibration of FEI images when adding them to the protocol. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Vega auto calibrate</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_3">
+           <attribute name="title">
+            <string>XL40</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_7">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_15">
+                <property name="text">
+                 <string>XL40-Cold logbook</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="xl40cold_elog_logbook_field"/>
+              </item>
+              <item row="0" column="2">
+               <widget class="QCheckBox" name="xl40_auto_calibrated_checkbok">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;FEI Auto calibrate&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Perform automatic calibration of FEI images when adding them to the protocol. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>XL40 Auto calibrate</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>XL40-GB logbook</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="xl40gb_elog_logbook_field"/>
+              </item>
+              <item row="1" column="2">
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>GUI Defaults</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Default microscope</string>
+            </property>
+            <property name="buddy">
+             <cstring>default_microscope_combo</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="default_microscope_combo"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Default protocol folder</string>
+            </property>
+            <property name="buddy">
+             <cstring>default_protocol_folder</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="default_protocol_folder"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>Default mirroring folder</string>
+            </property>
+            <property name="buddy">
+             <cstring>default_mirroring_folder</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="default_mirroring_folder"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="button_group">
+       <item>
+        <widget class="QPushButton" name="load_conf_button">
+         <property name="text">
+          <string>Load file</string>
+         </property>
+         <property name="icon">
+          <iconset resource="resource.qrc">
+           <normaloff>:/resources/icons8-opened-folder-30.png</normaloff>:/resources/icons8-opened-folder-30.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="save_conf_button">
+         <property name="text">
+          <string>Save file</string>
+         </property>
+         <property name="icon">
+          <iconset resource="resource.qrc">
+           <normaloff>:/resources/icons8-save-30.png</normaloff>:/resources/icons8-save-30.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="reset_conf_button">
+         <property name="text">
+          <string>Reset default</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>88</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="standardButtons">
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>elog_user_field</tabstop>
+  <tabstop>elog_password_field</tabstop>
+  <tabstop>elog_max_auth_error_field</tabstop>
+  <tabstop>elog_hostname_field</tabstop>
+  <tabstop>elog_port_field</tabstop>
+  <tabstop>elog_ssl_check_box</tabstop>
+  <tabstop>elog_timeout_spinbox</tabstop>
+  <tabstop>attempts_on_timeout_spinbox</tabstop>
+  <tabstop>waiting_time_between_timeout_attempts_spingbox</tabstop>
+  <tabstop>base_path_field</tabstop>
+  <tabstop>search_basepath_button</tabstop>
+  <tabstop>server_root_field</tabstop>
+  <tabstop>img_thumb_size_spinbox</tabstop>
+  <tabstop>custom_id_start_spinBox</tabstop>
+  <tabstop>custom_id_tiff_tag_spinBok</tabstop>
+  <tabstop>fei_auto_calibrated_checkbok</tabstop>
+  <tabstop>fei_crop_databar_checkbok</tabstop>
+  <tabstop>autologbook_max_attempts_spinbox</tabstop>
+  <tabstop>autologbook_wait_min_spinbox</tabstop>
+  <tabstop>autologbook_wait_max_spinbox</tabstop>
+  <tabstop>autologbook_wait_increment_spinbox</tabstop>
+  <tabstop>autologbook_min_delay_spinbox</tabstop>
+  <tabstop>autologbook_observer_timeout_spinbox</tabstop>
+  <tabstop>mirroring_max_attempts_spinbox</tabstop>
+  <tabstop>mirroring_wait_spinbox</tabstop>
+  <tabstop>mirroring_observer_timeout_spinbox</tabstop>
+  <tabstop>microscope_tabs</tabstop>
+  <tabstop>quattro_elog_logbook_field</tabstop>
+  <tabstop>quattro_navcam_size_spinbox</tabstop>
+  <tabstop>load_conf_button</tabstop>
+  <tabstop>save_conf_button</tabstop>
+  <tabstop>reset_conf_button</tabstop>
+  <tabstop>versa_elog_logbook_field</tabstop>
+ </tabstops>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>search_basepath_button</sender>
+   <signal>clicked()</signal>
+   <receiver>configurationDialog</receiver>
+   <slot>search_basepath()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>655</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>518</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>load_conf_button</sender>
+   <signal>clicked()</signal>
+   <receiver>configurationDialog</receiver>
+   <slot>load_conf_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>715</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>67</x>
+     <y>509</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>save_conf_button</sender>
+   <signal>clicked()</signal>
+   <receiver>configurationDialog</receiver>
+   <slot>save_conf_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>166</x>
+     <y>715</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>181</x>
+     <y>509</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>elog_password_field</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>configurationDialog</receiver>
+   <slot>password_edited(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>71</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>489</x>
+     <y>220</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>configurationDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>666</x>
+     <y>714</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>reset_conf_button</sender>
+   <signal>clicked()</signal>
+   <receiver>configurationDialog</receiver>
+   <slot>reset_conf()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>247</x>
+     <y>714</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>495</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>configurationDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>666</x>
+     <y>714</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>search_text_editor()</slot>
+  <slot>search_robocopy()</slot>
+  <slot>load_conf_file()</slot>
+  <slot>save_conf_file()</slot>
+  <slot>reset_conf()</slot>
+  <slot>search_basepath()</slot>
+  <slot>password_edited(QString)</slot>
+ </slots>
+</ui>

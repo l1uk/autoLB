@@ -1,0 +1,118 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      POSTGRES_DB: autologbook
+      POSTGRES_USER: alb
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alb -d autologbook"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  backend:
+    image: python:3.12-slim
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    working_dir: /workspace/backend
+    volumes:
+      - ..:/workspace
+    command: >
+      sh -c "pip install --no-cache-dir fastapi 'uvicorn[standard]' celery &&
+      if [ -f pyproject.toml ]; then pip install --no-cache-dir -e .; fi &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  celery:
+    image: python:3.12-slim
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    working_dir: /workspace/backend
+    volumes:
+      - ..:/workspace
+    command: >
+      sh -c "pip install --no-cache-dir fastapi celery &&
+      if [ -f pyproject.toml ]; then pip install --no-cache-dir -e .; fi &&
+      celery -A app.worker worker --loglevel=info"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  frontend:
+    image: node:22-alpine
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    working_dir: /workspace/frontend
+    volumes:
+      - ..:/workspace
+      - frontend_node_modules:/workspace/frontend/node_modules
+    command: >
+      sh -c "if [ -f package-lock.json ]; then npm ci;
+      elif [ -f package.json ]; then npm install; fi &&
+      npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  frontend_node_modules:

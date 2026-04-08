@@ -1,0 +1,18 @@
+{% extends 'optical_image_base_template.yammy' %}
+
+{% block optical_image_table_additional_rows %}
+    tr
+        td
+            | <strong>Device:</strong> {{ image.params.get('Make', 'Unknown') }} /
+             {{ image.params.get('Model', 'Unknown') }}
+        td
+            | <strong>Image size [w x l]:</strong> {{ image.params.get('ImageWidth', 0) }} x {{ image.params.get('ImageLength', 0) }}
+            {{ '{0:.2f}'.format(image.params.get('MP', 0)) }}
+        td
+            | <strong>Resolution [w x l]:</strong> {{ image.params.get('Resolution', 'Unknown') }}
+        td
+            | <strong>Orientation:</strong> {{ image.params.get('Orientation_str') }}
+        td
+            | <strong>Date:</strong> {{ image.params.get('DateTime', 'Unknown') }}
+
+{% endblock optical_image_table_additional_rows %}

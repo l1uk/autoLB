@@ -1,0 +1,20 @@
+{% from 'macros.yammy' import include_hide_command with context %}
+
+{% if sample.attachments|count %}
+    div
+        - class keep_together
+        div
+            - class list_title
+            div
+                h3.section_title
+                    - id {{ full_name }}attach
+                    Attachment list for sample: {{ full_name }}
+            div
+                {{ include_hide_command( full_name + 'attachstable') }}
+        div
+            - id {{ full_name }}attachstable
+            - class attach_div
+            {% for attach in sample.attachments.values() %}
+                {% include attach.template %}
+            {% endfor %}
+{% endif %}

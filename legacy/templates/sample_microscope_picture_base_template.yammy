@@ -1,0 +1,20 @@
+{% from 'macros.yammy' import include_hide_command with context %}
+
+{% if sample.images|count %}
+    div
+        - class keep_together
+        div
+            - class list_title
+            div
+                h3.section_title
+                    - id {{ full_name }}pics
+                    Picture list for sample: {{ full_name }}
+            div
+                {{ include_hide_command( full_name + 'picstable' ) }}
+        div
+            - id {{ full_name }}picstable
+            - class micro_pic_div
+            {% for picture in sample.images.values() %}
+                {% include picture.template %}
+            {% endfor %}
+{% endif %}

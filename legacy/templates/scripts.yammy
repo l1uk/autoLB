@@ -1,0 +1,19 @@
+script
+    function hideDiv(div_name) {
+              var x = document.getElementById(div_name);
+                  if (x.style.display == "none") {
+                          x.style.display = "block";
+                          window.onclick = e => { e.target.innerText = 'Hide the table'};
+                  } else {
+                          x.style.display = "none" ;
+                          window.onclick = e => { e.target.innerText = 'Show the table'};
+                 }
+             }
+
+    function openPdfGenerator(url) {
+        width= 550;
+        height = 650;
+        left_pos = 0.9 * window.screen.width - width;
+        top_pos = 0.1 * window.screen.height;
+        window.open(url, 'PDF Generator', "width="+width+", height="+height+", left="+left_pos+", top="+top_pos)
+    }

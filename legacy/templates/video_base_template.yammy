@@ -1,0 +1,43 @@
+{% from 'macros.yammy' import include_element_custom_row  %}
+
+table.video_table
+    - id {{ video.params['anchor'] }}
+    {% block video_table_header_row %}
+        tr
+            th
+                - colspan 3
+                | <b>{{ video.get('path') }}</b>
+            th
+                | <a href="{{ video.get('url') }}">Download</a>
+    {% endblock video_table_header_row %}
+
+    {% block video_table_first_row %}
+        {% if 'Caption' in protocol.yamlDict[video.key] and protocol.yamlDict[video.key]['Caption'] %}
+            {% set caption = protocol.yamlDict[video.key]['Caption'] %}
+        {% else %}
+            {% set caption = video.params.get('filename') %}
+        {% endif %}
+        tr
+            td
+                - class video_cell
+                iframe
+                    - allowfullscreen True
+                    - frameborder 0
+                    - width 640
+                    - height 480
+                    - scrolling False
+                    - src {{ video.get('url') }}
+                div
+                    - class video_caption
+                    | {{ caption }}
+            td
+                <b>Filename: </b> {{ video.get('filename') }}
+            td
+                <b>Creation date: </b> {{ video.get('stat')| fmt_file_creation_date }}
+            td
+                <b>File size: </b> {{ video.get('size') | fmt_file_size }}
+    {% endblock video_table_first_row %}
+
+    {% block video_table_custom_rows %}
+        {{ include_element_custom_row(protocol.yamlDict[video.key]) }}
+    {% endblock video_table_custom_rows %}

@@ -1,0 +1,21 @@
+div
+    - class html_navigation_container
+    div
+        - id previous_page
+        {%if page._previous_page %}
+            a
+                - href  {{ page._previous_page.url }}
+                | Previous page
+        {% endif %}
+    div
+        - id main_page_sample_list
+        a
+            - href {{ page._parent_page.url }}
+            | Sample index
+    div
+        - id next_page
+        {% if page._next_page %}
+            a
+                - href {{ page._next_page.url }}
+                | Next page
+        {% endif %}

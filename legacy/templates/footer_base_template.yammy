@@ -1,0 +1,3 @@
+div
+    - id footer
+    Page last updated on {{ protocol.last_update }}

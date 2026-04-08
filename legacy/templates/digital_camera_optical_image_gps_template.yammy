@@ -1,0 +1,14 @@
+{% extends 'digital_camera_optical_image_template.yammy' %}
+
+{% block optical_image_table_additional_rows %}
+    {{ super() }}
+    tr
+        td
+            - colspan 2
+            | <strong>Latitude:</strong> {{ image.params.get('GPSLatitude', 'Unknown') }}
+        td
+            - colspan 2
+            | <strong>Longitude:</strong> {{ image.params.get('GPSLongitude', 'Unknown') }}
+        td
+            | <strong>Altitude:</strong> {{ image.params.get('GPSAltitude', 'Unknown') }}
+{% endblock optical_image_table_additional_rows %}

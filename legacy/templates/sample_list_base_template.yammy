@@ -1,0 +1,24 @@
+{% if protocol.samples|count %}
+    div#sample_list_div
+        h2.section_title#samplelist
+            | Sample list
+        ul.sample_list
+            {% set parent_samples = [] %}
+            {% for full_name, sample in protocol.samples.items() %}
+                {% if not sample.parent %}
+                    {% do parent_samples.append(full_name) %}
+                {% endif %}
+            {% endfor %}
+
+            {% for full_name in parent_samples recursive %}
+                {% set sample = protocol.samples[full_name] %}
+
+                {% set objects = [ (sample.images | count, 'microscope image', 'microscope images'), (sample.videos | count, 'video', 'videos'), (sample.attachments | count, 'attachment', 'attachments'), (sample.optical_images | count, 'optical image', 'optical images'), ] %}
+                li
+                    Sample <a href="#{{ full_name }}">{{ full_name }}</a> with {{ objects|fmt_sample_details }}
+                    {% if sample.subsamples|count %}
+                        ul
+                            | {{ loop(sample.subsamples) }}
+                    {% endif %}
+            {% endfor %}
+{% endif %}

@@ -1,0 +1,48 @@
+{% if protocol.protocol_type == 'QuattroProtocol' %}
+    {% set logo = protocol.connection_parameters.elog_hostname + '/images/quattro-logo.png'  %}
+{% elif protocol.protocol_type == 'VersaProtocol' %}
+    {% set logo = protocol.connection_parameters.elog_hostname + '/images/versa-logo.png'  %}
+{% elif protocol.protocol_type == 'VegaProtocol' %}
+    {% set logo = protocol.connection_parameters.elog_hostname + '/images/vega-logo.jpg'  %}
+{% elif protocol.protocol_type == 'XL40Protocol' %}
+    {% set logo = protocol.connection_parameters.elog_hostname + '/images/xl40-logo.jpg'  %}
+{% elif protocol.protocol_type == 'MultiMicroscopeProtocol' %}
+    {% set logo = protocol.connection_parameters.elog_hostname + '/images/micro-logo.png'  %}
+{% endif %}
+
+{% block title_section %}
+    div#protocol_title_div
+        div
+            - class protocol_type
+            {% block protocol_type %}
+                {% if logo %}
+                    img
+                        - src {{ logo }}
+                        - alt {{ protocol.protocol_type }}
+                        - title {{ protocol.protocol_type }}
+                {% else %}
+                    h1
+                        - class protocol_type
+                        | {{ protocol.protocol_type }}
+                {% endif %}
+            {% endblock protocol_type %}
+        div
+            h1
+                - class main_title
+                - id intro
+                | Logbook for protocol {{ protocol.protocol }}
+        div
+            - id pdf_generator
+            {% if protocol.elog_msg_id|count %}
+                a
+                    - href javascript:void(0);
+                    - onclick openPdfGenerator('{{ protocol.connection_parameters.elog_hostname }}/scripts/pdf_generator/pdf_generator.rpy?{% for msg in protocol.elog_msg_id %}msg_id={{ msg }}{% if not loop.last %}&{% endif %}{% endfor %}&logbook={{ protocol.elog_logbook }}')
+                    img
+                        - src {{ protocol.connection_parameters.elog_hostname + '/scripts/pdf_generator/images/pdf_export.png' }}
+                        - alt Generate PDF
+                        - title Generate PDF
+
+            {% endif %}
+
+
+{% endblock title_section %}

@@ -1,0 +1,53 @@
+{% from 'macros.yammy' import include_element_custom_row  %}
+
+table.optical_image_table
+    - id {{ image.params['anchor'] }}
+    {% block optical_image_table_header_row %}
+        tr
+            th
+                - colspan 5
+                | <b>{{ image.params['path'] }}</b>
+            th
+                - colspan 2
+                a
+                    - href {{ image.params['url'] }}
+                    | {{ image.params['format'] }}
+    {% endblock optical_image_table_header_row %}
+
+    {% block optical_image_table_thumbnail_row %}
+        {% if 'Caption' in protocol.yamlDict[image.key] and protocol.yamlDict[image.key]['Caption'] %}
+            {% set caption = protocol.yamlDict[image.key]['Caption'] %}
+        {% else %}
+            {% set caption = image.params['filename'] %}
+        {% endif %}
+        tr
+            td
+                - class thumb_cell
+                - colspan 2
+                - rowspan {{ image.params['thumb_rowspan'] }}
+                - style text-align:center
+                figure.image
+                    a
+                        - href {{ image.params['url'] }}
+                        img
+#                            - width {{ image.params['thumb_max_width']|int -10 }}
+                            - src {{ image.params['url'] }}
+                            - alt {{ image.params['filename'] }}
+                    figcaption
+                        | {{ caption | trim }}
+
+            td
+                - colspan 3
+                | <strong>Image size [w x l]: </strong> {{ image.params.get('x_pixel', 0) }} x {{ image.params.get('y_pixel', 0) }}
+            td
+                - colspan 2
+                | <strong>Format: </strong> {{ image.params.get('format', 'Unknown') }}
+
+    {% endblock optical_image_table_thumbnail_row %}
+
+    {% block optical_image_table_additional_rows %}
+    {% endblock optical_image_table_additional_rows %}
+
+    {% block optical_image_table_custom_rows %}
+        {{ include_element_custom_row(protocol.yamlDict[image.key]) }}
+    {% endblock optical_image_table_custom_rows %}

@@ -1,0 +1,56 @@
+{% from 'macros.yammy' import include_element_custom_row  %}
+
+table.micropic_table
+    - id {{ picture.params['anchor'] }}
+    tr
+        {% block microscope_picture_table_header_row %}
+            {% block microscope_picture_table_first_header %}
+            th
+                - colspan 5
+                <b>{{ picture.params['path'] }}</b>
+            {% endblock microscope_picture_table_first_header %}
+            {% block microscope_picture_table_second_header %}
+            th
+                <a href="{{ picture.params['pngurl'] }}">PNG</a>
+            th
+                <a href="{{ picture.params['path']|convert_path_to_uri }}">ORIGINAL FORMAT</a>
+            {% endblock microscope_picture_table_second_header %}
+        {% endblock microscope_picture_table_header_row %}
+
+    {% block microscope_picture_table_thumbnail_row %}
+        {% if 'Caption' in protocol.yamlDict[picture.key] and protocol.yamlDict[picture.key]['Caption'] %}
+            {% set caption = protocol.yamlDict[picture.key]['Caption'] %}
+        {% else %}
+            {% set caption = picture.params['fileName'] %}
+        {% endif %}
+        tr
+            td
+                - class thumb_cell
+                - colspan 2
+                - rowspan {{ picture.params['thumb_rowspan'] }}
+                figure.image
+                    a
+                        - href {{ picture.params['pngurl'] }}
+                        img
+                            - alt {{ picture.params['thumbfilename'] }}
+                            - src {{ picture.params['thumburl'] }}
+                    figcaption
+                        | {{ caption | trim }}
+
+            {% block microscope_picture_table_thumbnail_row_last_cols %}
+                td
+                    | {{ picture.params['id'] }}
+                td
+                    | {{ picture.params['fileName'] }}
+                td
+                    - colspan 3
+                    | {{ picture.params['key'] }}
+            {% endblock microscope_picture_table_thumbnail_row_last_cols %}
+    {% endblock microscope_picture_table_thumbnail_row %}
+
+    {% block microscope_picture_table_additional_rows %}
+    {% endblock microscope_picture_table_additional_rows %}
+
+    {% block microscope_picture_table_custom_rows %}
+        {{ include_element_custom_row(protocol.yamlDict[picture.key]) }}
+    {% endblock microscope_picture_table_custom_rows %}

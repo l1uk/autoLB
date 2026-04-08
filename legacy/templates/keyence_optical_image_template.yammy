@@ -1,0 +1,8 @@
+{% extends 'optical_image_base_template.yammy' %}
+
+{% block optical_image_table_additional_rows %}
+    tr
+        td
+            - colspan 5
+            | Keyence Microscope Image. Further information can be obtained opening the original file in the proprietary Keyence software
+{% endblock optical_image_table_additional_rows %}
