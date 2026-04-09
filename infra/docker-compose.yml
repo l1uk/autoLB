@@ -87,6 +87,7 @@ services:
         condition: service_started
 
   frontend:
+    profiles: ["ui"]
     build:
       context: ../frontend
       target: dev
