@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autologbook-backend"
+version = "0.1.0"
+description = "Autologbook backend service"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "sqlalchemy[asyncio]",
+  "alembic",
+  "pydantic>=2,<3",
+  "celery",
+  "redis",
+  "Pillow",
+  "numpy",
+  "piexif",
+  "pyvips",
+  "boto3",
+  "python-jose[cryptography]",
+  "bcrypt",
+  "Jinja2",
+  "asyncpg",
+  "defusedxml",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-asyncio",
+  "httpx",
+  "moto[s3]",
+]
+
+[tool.setuptools]
+packages = ["app"]

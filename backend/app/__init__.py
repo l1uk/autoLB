@@ -1,0 +1,1 @@
+"""Autologbook backend application package."""
