@@ -71,6 +71,13 @@ access_policy_scope_type_enum = sa.Enum(
     "EXPLICIT",
     name="access_policy_scope_type_enum",
 )
+user_role_enum = sa.Enum(
+    "SYSTEM_ADMIN",
+    "UNIT_MANAGER",
+    "OPERATOR",
+    "READER",
+    name="user_role_enum",
+)
 
 
 def upgrade() -> None:
@@ -95,7 +102,14 @@ def upgrade() -> None:
     op.create_table(
         "data_service_clients",
         sa.Column("id", sa.Uuid(), primary_key=True, nullable=False),
-        sa.Column("session_token", sa.String(length=255), nullable=True),
+        sa.Column("hostname", sa.String(length=255), nullable=False),
+        sa.Column("watch_folder", sa.String(length=1024), nullable=False),
+        sa.Column("os_info", sa.String(length=255), nullable=False),
+        sa.Column("agent_version", sa.String(length=64), nullable=False),
+        sa.Column("api_key_hash", sa.String(length=255), nullable=False),
+        sa.Column("session_token_hash", sa.String(length=255), nullable=True),
+        sa.Column("session_expires_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("last_seen", sa.DateTime(timezone=True), nullable=True),
         sa.Column("status", data_service_client_status_enum, nullable=False),
         sa.Column("is_revoked", sa.Boolean(), nullable=False),
     )
@@ -103,6 +117,7 @@ def upgrade() -> None:
     op.create_table(
         "data_service_tasks",
         sa.Column("id", sa.Uuid(), primary_key=True, nullable=False),
+        sa.Column("client_id", sa.Uuid(), nullable=False),
         sa.Column(
             "task_type",
             sa.String(length=255),
@@ -112,6 +127,10 @@ def upgrade() -> None:
         sa.Column("operation", sa.String(length=255), nullable=False),
         sa.Column("params", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
         sa.Column("status", data_service_task_status_enum, nullable=False),
+        sa.Column("delivered_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("error_message", sa.Text(), nullable=True),
+        sa.ForeignKeyConstraint(["client_id"], ["data_service_clients.id"], ondelete="CASCADE"),
     )
 
     op.create_table(
@@ -135,6 +154,17 @@ def upgrade() -> None:
             comment="Opaque token. data-service must not decode this value.",
         ),
         sa.Column("decision", file_event_decision_enum, nullable=False),
+    )
+
+    op.create_table(
+        "users",
+        sa.Column("id", sa.Uuid(), primary_key=True, nullable=False),
+        sa.Column("email", sa.String(length=255), nullable=False, unique=True),
+        sa.Column("username", sa.String(length=255), nullable=False, unique=True),
+        sa.Column("role", user_role_enum, nullable=False),
+        sa.Column("unit_id", sa.Uuid(), nullable=True),
+        sa.Column("hashed_password", sa.String(length=255), nullable=False),
+        sa.Column("is_active", sa.Boolean(), nullable=False),
     )
 
     op.create_table(
@@ -239,6 +269,7 @@ def downgrade() -> None:
     op.drop_table("microscope_pictures")
     op.drop_table("samples")
     op.drop_table("protocols")
+    op.drop_table("users")
     op.drop_table("file_events")
     op.drop_table("experiment_configurations")
     op.drop_table("data_service_tasks")

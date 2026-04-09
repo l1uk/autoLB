@@ -69,3 +69,10 @@ class AccessPolicyScopeType(StrEnum):
     OPEN = "OPEN"
     GROUP = "GROUP"
     EXPLICIT = "EXPLICIT"
+
+
+class UserRole(StrEnum):
+    SYSTEM_ADMIN = "SYSTEM_ADMIN"
+    UNIT_MANAGER = "UNIT_MANAGER"
+    OPERATOR = "OPERATOR"
+    READER = "READER"

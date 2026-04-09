@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
+    DateTime,
     Enum,
     ForeignKey,
     Integer,
@@ -30,6 +32,7 @@ from app.domain.enums import (
     PictureType,
     ProcessingStatus,
     ProtocolStatus,
+    UserRole,
 )
 
 
@@ -345,10 +348,25 @@ class ExperimentConfiguration(Base):
 
 class DataServiceClient(Base):
     __tablename__ = "data_service_clients"
-    __required_fields__ = ("status", "is_revoked")
+    __required_fields__ = (
+        "hostname",
+        "watch_folder",
+        "os_info",
+        "agent_version",
+        "api_key_hash",
+        "status",
+        "is_revoked",
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
-    session_token: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    hostname: Mapped[str] = mapped_column(String(255), nullable=False)
+    watch_folder: Mapped[str] = mapped_column(String(1024), nullable=False)
+    os_info: Mapped[str] = mapped_column(String(255), nullable=False)
+    agent_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    api_key_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    session_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    session_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_seen: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     status: Mapped[DataServiceClientStatus] = mapped_column(
         Enum(DataServiceClientStatus, name="data_service_client_status_enum"),
         nullable=False,
@@ -358,9 +376,14 @@ class DataServiceClient(Base):
 
 class DataServiceTask(Base):
     __tablename__ = "data_service_tasks"
-    __required_fields__ = ("task_type", "operation", "params", "status")
+    __required_fields__ = ("client_id", "task_type", "operation", "params", "status")
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
+    client_id: Mapped[UUID] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("data_service_clients.id", ondelete="CASCADE"),
+        nullable=False,
+    )
     task_type: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
@@ -372,6 +395,9 @@ class DataServiceTask(Base):
         Enum(DataServiceTaskStatus, name="data_service_task_status_enum"),
         nullable=False,
     )
+    delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class FileEvent(Base):
@@ -388,3 +414,19 @@ class FileEvent(Base):
         Enum(FileEventDecision, name="file_event_decision_enum"),
         nullable=False,
     )
+
+
+class User(Base):
+    __tablename__ = "users"
+    __required_fields__ = ("email", "username", "role", "hashed_password", "is_active")
+
+    id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
+    email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, name="user_role_enum"),
+        nullable=False,
+    )
+    unit_id: Mapped[UUID | None] = mapped_column(Uuid(as_uuid=True), nullable=True)
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)

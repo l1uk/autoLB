@@ -1,0 +1,13 @@
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    environment:
+      CGO_ENABLED: "0"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ..:/workspace
+    working_dir: /workspace/data-service

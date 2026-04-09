@@ -18,3 +18,12 @@ AsyncSessionFactory = async_sessionmaker(
 async def get_db_session() -> AsyncIterator[AsyncSession]:
     async with AsyncSessionFactory() as session:
         yield session
+
+
+async def init_db() -> None:
+    # Engine creation initializes the async pool lazily; no connection should be forced here.
+    _ = engine.pool
+
+
+async def close_db() -> None:
+    await engine.dispose()

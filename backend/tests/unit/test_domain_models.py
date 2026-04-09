@@ -20,6 +20,7 @@ from app.domain.models import (
     OpticalImage,
     Protocol,
     Sample,
+    User,
     Video,
 )
 from app.domain.enums import (
@@ -33,6 +34,7 @@ from app.domain.enums import (
     PictureType,
     ProcessingStatus,
     ProtocolStatus,
+    UserRole,
 )
 
 
@@ -82,6 +84,7 @@ def make_sample(access_policy_id):
         (FileEvent, {}),
         (MicroscopePicture, {}),
         (ImageDerivative, {}),
+        (User, {}),
     ],
 )
 def test_required_fields_raise_validation_error(model_class, kwargs) -> None:
@@ -128,10 +131,17 @@ def test_domain_models_happy_path_instantiation() -> None:
     )
     experiment_configuration = ExperimentConfiguration(watch_folder="C:/watch")
     client = DataServiceClient(
+        id=uuid4(),
+        hostname="acq-pc-01",
+        watch_folder="C:/watch",
+        os_info="Windows 11",
+        agent_version="0.1.0",
+        api_key_hash="hashed-api-key",
         status=DataServiceClientStatus.ONLINE,
         is_revoked=False,
     )
     task = DataServiceTask(
+        client_id=client.id,
         task_type="sync-folder",
         operation="collect",
         params={"path": "/opaque"},
@@ -140,6 +150,13 @@ def test_domain_models_happy_path_instantiation() -> None:
     file_event = FileEvent(
         context_id=uuid4(),
         decision=FileEventDecision.ACCEPT,
+    )
+    user = User(
+        email="user@example.com",
+        username="user1",
+        role=UserRole.OPERATOR,
+        hashed_password="hashed",
+        is_active=True,
     )
 
     assert access_policy.id is not None
@@ -152,9 +169,11 @@ def test_domain_models_happy_path_instantiation() -> None:
     assert navigation_image.sample_id == sample.id
     assert video.description == "Recording"
     assert experiment_configuration.watch_folder == "C:/watch"
+    assert client.hostname == "acq-pc-01"
     assert client.status == DataServiceClientStatus.ONLINE
     assert task.task_type == "sync-folder"
     assert file_event.decision == FileEventDecision.ACCEPT
+    assert user.role == UserRole.OPERATOR
 
 
 @pytest.mark.asyncio

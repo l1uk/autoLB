@@ -15,6 +15,7 @@ from app.domain.models import (
     OpticalImage,
     Protocol,
     Sample,
+    User,
     Video,
 )
 
@@ -33,5 +34,6 @@ __all__ = [
     "OpticalImage",
     "Protocol",
     "Sample",
+    "User",
     "Video",
 ]

@@ -54,4 +54,4 @@ React Router v6, Tailwind CSS, shadcn/ui, OpenSeadragon
 Data-service: Go (static binary, CGO_ENABLED=0), fsnotify,
 SQLite (offline queue), TLS 1.2+
 ## Current sprint focus
-SPRINT 0 - INFRA-01 — Backend Docker Compose & BE-01 — Domain Models + Alembic Migration 
+SPRINT 1 - INFRA-01 — BE-02 — FastAPI app skeleton + human auth (§3.8) & BE-03 — Data-service auth endpoints (RF-14, §8.1) & BE-04 — Heartbeat + task delivery (RF-15, RF-18) & DS-01 — Go data-service agent (§8.3, RF-14, RF-15, RF-16, RF-17, RF-18) 
