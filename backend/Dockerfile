@@ -16,10 +16,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml ./
-
-RUN pip install -e ".[dev]"
-
 COPY app ./app
+
 RUN pip install --upgrade pip \
     && pip install -e ".[dev]"
 

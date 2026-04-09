@@ -1,0 +1,71 @@
+from enum import StrEnum
+
+
+# PictureType values are declared in detection order.
+# QUATTRO_MICROSCOPE_PICTURE must be first and GENERIC_MICROSCOPE_PICTURE must be last.
+# This order is enforced at application level.
+class PictureType(StrEnum):
+    QUATTRO_MICROSCOPE_PICTURE = "QUATTRO_MICROSCOPE_PICTURE"
+    VERSA_MICROSCOPE_PICTURE = "VERSA_MICROSCOPE_PICTURE"
+    FEI_MICROSCOPE_PICTURE = "FEI_MICROSCOPE_PICTURE"
+    VEGA_TIFF_MICROSCOPE_PICTURE = "VEGA_TIFF_MICROSCOPE_PICTURE"
+    VEGA_JPEG_MICROSCOPE_PICTURE = "VEGA_JPEG_MICROSCOPE_PICTURE"
+    XL40_VARIANT_A_MICROSCOPE_PICTURE = "XL40_VARIANT_A_MICROSCOPE_PICTURE"
+    XL40_VARIANT_B_MICROSCOPE_PICTURE = "XL40_VARIANT_B_MICROSCOPE_PICTURE"
+    GENERIC_MICROSCOPE_PICTURE = "GENERIC_MICROSCOPE_PICTURE"
+
+
+class ProcessingStatus(StrEnum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    DONE = "DONE"
+    ERROR = "ERROR"
+
+
+class DerivativeType(StrEnum):
+    THUMBNAIL = "THUMBNAIL"
+    FULLSIZE_PNG = "FULLSIZE_PNG"
+    DZI = "DZI"
+    CROPPED = "CROPPED"
+    FRAME_PNG = "FRAME_PNG"
+
+
+class ProtocolStatus(StrEnum):
+    DRAFT = "DRAFT"
+    ACTIVE = "ACTIVE"
+    LOCKED = "LOCKED"
+
+
+class AcquisitionStatus(StrEnum):
+    ONGOING = "ONGOING"
+    COMPLETED = "COMPLETED"
+
+
+class CalibrationAlgorithm(StrEnum):
+    FEI_TAG = "FEI_TAG"
+    VEGA_PIXEL_SIZE = "VEGA_PIXEL_SIZE"
+    XL40_XMP = "XL40_XMP"
+
+
+class DataServiceClientStatus(StrEnum):
+    ONLINE = "ONLINE"
+    OFFLINE = "OFFLINE"
+    NEVER_SEEN = "NEVER_SEEN"
+
+
+class DataServiceTaskStatus(StrEnum):
+    PENDING = "PENDING"
+    DELIVERED = "DELIVERED"
+    SUCCESS = "SUCCESS"
+    ERROR = "ERROR"
+
+
+class FileEventDecision(StrEnum):
+    ACCEPT = "ACCEPT"
+    IGNORE = "IGNORE"
+
+
+class AccessPolicyScopeType(StrEnum):
+    OPEN = "OPEN"
+    GROUP = "GROUP"
+    EXPLICIT = "EXPLICIT"

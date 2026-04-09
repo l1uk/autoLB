@@ -13,6 +13,7 @@ dependencies = [
   "sqlalchemy[asyncio]",
   "alembic",
   "pydantic>=2,<3",
+  "pydantic-settings",
   "celery",
   "redis",
   "Pillow",
@@ -33,7 +34,12 @@ dev = [
   "pytest-asyncio",
   "httpx",
   "moto[s3]",
+  "aiosqlite",
 ]
 
-[tool.setuptools]
-packages = ["app"]
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+include = ["app*"]

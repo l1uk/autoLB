@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U alb -d autologbook"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -52,7 +52,10 @@ services:
       target: dev
     env_file:
       - .env
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      PYTHONPATH: /workspace/backend
+      ALEMBIC_CONFIG: /workspace/backend/alembic.ini
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /workspace/backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -61,8 +64,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
-    working_dir: /app
+      - ..:/workspace
+    working_dir: /workspace
 
   worker:
     build:
@@ -71,6 +74,9 @@ services:
       target: dev
     env_file:
       - .env
+    environment:
+      PYTHONPATH: /workspace/backend
+      ALEMBIC_CONFIG: /workspace/backend/alembic.ini
     command: celery -A app.celery_app:celery_app worker --loglevel=info
     depends_on:
       postgres:
@@ -78,8 +84,8 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - .:/app
-    working_dir: /app
+      - ..:/workspace
+    working_dir: /workspace
 
 volumes:
   postgres_data:
