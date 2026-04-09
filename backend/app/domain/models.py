@@ -6,28 +6,101 @@ from typing import Any
 
 from sqlalchemy import BigInteger
 from sqlalchemy import Boolean
+from sqlalchemy import CHAR
 from sqlalchemy import CheckConstraint
 from sqlalchemy import DateTime
 from sqlalchemy import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
+from sqlalchemy import JSON
 from sqlalchemy import Sequence
 from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
+from sqlalchemy.types import TypeDecorator
 
 from .base import Base
 from .base import utcnow
 
 
+class GUID(TypeDecorator[uuid.UUID]):
+    """Portable UUID type for PostgreSQL and SQLite test databases."""
+
+    impl = CHAR(36)
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(PG_UUID(as_uuid=True))
+        return dialect.type_descriptor(CHAR(36))
+
+    def process_bind_param(self, value: uuid.UUID | str | None, dialect) -> str | None:
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            return uuid.UUID(str(value))
+        return str(uuid.UUID(str(value)))
+
+    def process_result_value(self, value: str | uuid.UUID | None, dialect) -> uuid.UUID | None:
+        if value is None:
+            return None
+        if isinstance(value, uuid.UUID):
+            return value
+        return uuid.UUID(str(value))
+
+
+class GUIDList(TypeDecorator[list[uuid.UUID]]):
+    """Stores UUID lists as ARRAY on PostgreSQL and JSON on SQLite."""
+
+    impl = JSON
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(ARRAY(PG_UUID(as_uuid=True)))
+        return dialect.type_descriptor(JSON())
+
+    def process_bind_param(
+        self,
+        value: list[uuid.UUID] | list[str] | None,
+        dialect,
+    ) -> list[uuid.UUID] | list[str] | None:
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            return [uuid.UUID(str(item)) for item in value]
+        return [str(uuid.UUID(str(item))) for item in value]
+
+    def process_result_value(
+        self,
+        value: list[uuid.UUID] | list[str] | None,
+        dialect,
+    ) -> list[uuid.UUID]:
+        if not value:
+            return []
+        return [item if isinstance(item, uuid.UUID) else uuid.UUID(str(item)) for item in value]
+
+
+class PortableJSON(TypeDecorator[dict[str, Any]]):
+    """Uses JSONB on PostgreSQL and JSON elsewhere."""
+
+    impl = JSON
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(JSONB())
+        return dialect.type_descriptor(JSON())
+
+
 def uuid_pk() -> Mapped[uuid.UUID]:
     return mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         primary_key=True,
         default_factory=uuid.uuid4,
         init=False,
@@ -160,12 +233,9 @@ class AccessPolicy(Base, kw_only=True):
         access_policy_scope_type_enum,
         nullable=False,
     )
-    group_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), default=None)
-    allowed_ids: Mapped[list[uuid.UUID]] = mapped_column(
-        ARRAY(UUID(as_uuid=True)),
-        default_factory=list,
-    )
-    owner_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    group_id: Mapped[uuid.UUID | None] = mapped_column(GUID(), default=None)
+    allowed_ids: Mapped[list[uuid.UUID]] = mapped_column(GUIDList(), default_factory=list)
+    owner_id: Mapped[uuid.UUID] = mapped_column(GUID(), nullable=False)
     created_at: Mapped[Any] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
@@ -216,19 +286,19 @@ class Protocol(Base, kw_only=True):
         nullable=False,
     )
     access_policy_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("access_policies.id", ondelete="RESTRICT"),
         nullable=False,
     )
-    owner_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
-    unit_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), default=None)
+    owner_id: Mapped[uuid.UUID] = mapped_column(GUID(), nullable=False)
+    unit_id: Mapped[uuid.UUID | None] = mapped_column(GUID(), default=None)
     yaml_customization: Mapped[dict[str, Any]] = mapped_column(
-        JSONB,
+        PortableJSON(),
         default_factory=dict,
         nullable=False,
     )
     html_export_cache: Mapped[str | None] = mapped_column(Text, default=None)
-    html_exported_at: Mapped[Any] = mapped_column(DateTime(timezone=True), default=None)
+    html_exported_at: Mapped[Any] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     created_at: Mapped[Any] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
@@ -292,7 +362,7 @@ class ExperimentConfiguration(Base, kw_only=True):
 
     id: Mapped[uuid.UUID] = uuid_pk()
     protocol_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("protocols.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -326,7 +396,7 @@ class CalibrationConfig(Base, kw_only=True):
 
     id: Mapped[uuid.UUID] = uuid_pk()
     experiment_configuration_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("experiment_configurations.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -362,20 +432,20 @@ class Sample(Base, kw_only=True):
 
     id: Mapped[uuid.UUID] = uuid_pk()
     protocol_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("protocols.id", ondelete="CASCADE"),
         nullable=False,
     )
     full_name: Mapped[str] = mapped_column(String(1024), nullable=False)
     last_name: Mapped[str] = mapped_column(String(255), nullable=False)
     parent_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("samples.id", ondelete="CASCADE"),
         default=None,
     )
     description: Mapped[str | None] = mapped_column(Text, default=None)
     access_policy_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("access_policies.id", ondelete="RESTRICT"),
         nullable=False,
     )
@@ -430,7 +500,7 @@ class MicroscopePicture(Base, kw_only=True):
         init=False,
     )
     sample_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("samples.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -444,7 +514,7 @@ class MicroscopePicture(Base, kw_only=True):
         nullable=False,
     )
     params: Mapped[dict[str, Any]] = mapped_column(
-        JSONB,
+        PortableJSON(),
         default_factory=dict,
         nullable=False,
     )
@@ -453,7 +523,7 @@ class MicroscopePicture(Base, kw_only=True):
     extra_info: Mapped[str | None] = mapped_column(Text, default=None)
     has_metadata: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     calibration_config_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("calibration_configs.id", ondelete="SET NULL"),
         default=None,
     )
@@ -525,12 +595,12 @@ class Attachment(Base, kw_only=True):
 
     id: Mapped[uuid.UUID] = uuid_pk()
     protocol_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("protocols.id", ondelete="CASCADE"),
         default=None,
     )
     sample_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("samples.id", ondelete="CASCADE"),
         default=None,
     )
@@ -561,12 +631,12 @@ class OpticalImage(Base, kw_only=True):
 
     id: Mapped[uuid.UUID] = uuid_pk()
     protocol_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("protocols.id", ondelete="CASCADE"),
         default=None,
     )
     sample_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("samples.id", ondelete="CASCADE"),
         default=None,
     )
@@ -591,7 +661,7 @@ class NavigationImage(Base, kw_only=True):
 
     id: Mapped[uuid.UUID] = uuid_pk()
     protocol_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("protocols.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -617,7 +687,7 @@ class Video(Base, kw_only=True):
 
     id: Mapped[uuid.UUID] = uuid_pk()
     sample_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("samples.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -676,19 +746,19 @@ class DataServiceTask(Base, kw_only=True):
 
     id: Mapped[uuid.UUID] = uuid_pk()
     client_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("data_service_clients.id", ondelete="CASCADE"),
         nullable=False,
     )
     protocol_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("protocols.id", ondelete="SET NULL"),
         default=None,
     )
     task_type: Mapped[str] = mapped_column(String(64), nullable=False)
     operation: Mapped[str] = mapped_column(String(64), nullable=False)
     params: Mapped[dict[str, Any]] = mapped_column(
-        JSONB,
+        PortableJSON(),
         default_factory=dict,
         nullable=False,
     )
@@ -714,14 +784,14 @@ class FileEvent(Base, kw_only=True):
     __tablename__ = "file_events"
 
     id: Mapped[uuid.UUID] = uuid_pk()
-    context_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, unique=True)
+    context_id: Mapped[uuid.UUID] = mapped_column(GUID(), nullable=False, unique=True)
     client_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("data_service_clients.id", ondelete="CASCADE"),
         nullable=False,
     )
     protocol_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("protocols.id", ondelete="SET NULL"),
         default=None,
     )
@@ -742,4 +812,3 @@ class FileEvent(Base, kw_only=True):
 
     client: Mapped[DataServiceClient] = relationship(back_populates="file_events", init=False)
     protocol: Mapped[Protocol | None] = relationship(back_populates="file_events", default=None, init=False)
-

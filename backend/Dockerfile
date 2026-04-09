@@ -10,7 +10,7 @@ COPY app ./app
 COPY alembic ./alembic
 COPY alembic.ini ./
 
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir ".[test]"
 
 FROM base AS api
 EXPOSE 8000
