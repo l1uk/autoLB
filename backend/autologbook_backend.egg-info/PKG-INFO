@@ -1,6 +1,0 @@
-Metadata-Version: 2.4
-Name: autologbook-backend
-Version: 0.1.0
-Requires-Dist: celery[redis]>=5.3
-Requires-Dist: fastapi>=0.110
-Requires-Dist: uvicorn[standard]>=0.29
