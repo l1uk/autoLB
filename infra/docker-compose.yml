@@ -51,16 +51,14 @@ services:
       - minio_data:/data
 
   backend:
-    image: python:3.12-slim
+    build:
+      context: ../backend
+      target: api
     restart: unless-stopped
     env_file:
       - .env
-    working_dir: /workspace/backend
     volumes:
-      - ..:/workspace
-    command: >
-      sh -c "if [ -f pyproject.toml ]; then pip install --no-cache-dir -e .; fi &&
-      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+      - ../backend/app:/app/app
     ports:
       - "8000:8000"
     depends_on:
@@ -72,16 +70,12 @@ services:
         condition: service_started
 
   celery:
-    image: python:3.12-slim
+    build:
+      context: ../backend
+      target: worker
     restart: unless-stopped
     env_file:
       - .env
-    working_dir: /workspace/backend
-    volumes:
-      - ..:/workspace
-    command: >
-      sh -c "if [ -f pyproject.toml ]; then pip install --no-cache-dir -e .; fi &&
-      celery -A app.worker worker --loglevel=info"
     depends_on:
       postgres:
         condition: service_healthy
