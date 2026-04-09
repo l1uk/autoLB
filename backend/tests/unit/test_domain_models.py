@@ -166,6 +166,7 @@ def test_sqlite_in_memory_session_can_persist_sample_microscope_picture(
         owner_id=uuid.uuid4(),
     )
     protocol.protocol_number = 123
+    protocol.html_exported_at = None
     sample = Sample(
         protocol_id=protocol.id,
         full_name="Persisted Sample",

@@ -58,8 +58,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ../backend/app:/app/app
-      - ../backend/tests:/app/tests
+      - ../backend:/app
     ports:
       - "8000:8000"
     depends_on:
@@ -77,6 +76,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+    - ../backend:/app
     depends_on:
       postgres:
         condition: service_healthy

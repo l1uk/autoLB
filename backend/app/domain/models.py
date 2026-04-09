@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import enum
 import uuid
+from datetime import datetime
 from typing import Any
+from typing import Optional
 
 from sqlalchemy import BigInteger
 from sqlalchemy import Boolean
@@ -236,7 +238,7 @@ class AccessPolicy(Base, kw_only=True):
     group_id: Mapped[uuid.UUID | None] = mapped_column(GUID(), default=None)
     allowed_ids: Mapped[list[uuid.UUID]] = mapped_column(GUIDList(), default_factory=list)
     owner_id: Mapped[uuid.UUID] = mapped_column(GUID(), nullable=False)
-    created_at: Mapped[Any] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
         nullable=False,
@@ -298,13 +300,17 @@ class Protocol(Base, kw_only=True):
         nullable=False,
     )
     html_export_cache: Mapped[str | None] = mapped_column(Text, default=None)
-    html_exported_at: Mapped[Any] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
-    created_at: Mapped[Any] = mapped_column(
+    html_exported_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        default=None,
+        nullable=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
         nullable=False,
     )
-    updated_at: Mapped[Any] = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
         onupdate=utcnow,
@@ -532,12 +538,12 @@ class MicroscopePicture(Base, kw_only=True):
         default=ProcessingStatus.PENDING,
         nullable=False,
     )
-    created_at: Mapped[Any] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
         nullable=False,
     )
-    updated_at: Mapped[Any] = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
         onupdate=utcnow,
@@ -574,7 +580,7 @@ class ImageDerivative(Base, kw_only=True):
     storage_key: Mapped[str] = mapped_column(String(1024), nullable=False)
     url: Mapped[str | None] = mapped_column(String(2048), default=None)
     frame_index: Mapped[int | None] = mapped_column(Integer, default=None)
-    created_at: Mapped[Any] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
         nullable=False,
@@ -711,14 +717,20 @@ class DataServiceClient(Base, kw_only=True):
     watch_folder: Mapped[str] = mapped_column(String(1024), nullable=False)
     api_key_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     session_token: Mapped[str | None] = mapped_column(String(4096), default=None)
-    session_expires_at: Mapped[Any] = mapped_column(DateTime(timezone=True), default=None)
+    session_expires_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        default=None,
+    )
     status: Mapped[DataServiceClientStatus] = mapped_column(
         data_service_client_status_enum,
         default=DataServiceClientStatus.NEVER_SEEN,
         nullable=False,
     )
-    last_seen: Mapped[Any] = mapped_column(DateTime(timezone=True), default=None)
-    registered_at: Mapped[Any] = mapped_column(
+    last_seen: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        default=None,
+    )
+    registered_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
         nullable=False,
@@ -767,13 +779,19 @@ class DataServiceTask(Base, kw_only=True):
         default=DataServiceTaskStatus.PENDING,
         nullable=False,
     )
-    created_at: Mapped[Any] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
         nullable=False,
     )
-    delivered_at: Mapped[Any] = mapped_column(DateTime(timezone=True), default=None)
-    completed_at: Mapped[Any] = mapped_column(DateTime(timezone=True), default=None)
+    delivered_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        default=None,
+    )
+    completed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        default=None,
+    )
     error_message: Mapped[str | None] = mapped_column(Text, default=None)
 
     client: Mapped[DataServiceClient] = relationship(back_populates="tasks", init=False)
@@ -803,12 +821,15 @@ class FileEvent(Base, kw_only=True):
         nullable=False,
     )
     decision_reason: Mapped[str | None] = mapped_column(Text, default=None)
-    notified_at: Mapped[Any] = mapped_column(
+    notified_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default_factory=utcnow,
         nullable=False,
     )
-    uploaded_at: Mapped[Any] = mapped_column(DateTime(timezone=True), default=None)
+    uploaded_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        default=None,
+    )
 
     client: Mapped[DataServiceClient] = relationship(back_populates="file_events", init=False)
     protocol: Mapped[Protocol | None] = relationship(back_populates="file_events", default=None, init=False)
