@@ -40,6 +40,7 @@ async def live_app_client() -> AsyncIterator[tuple[AsyncClient, async_sessionmak
     redis = security.get_redis_client()
     await redis.flushdb()
     security.settings.token_local_validation = False
+    security.settings.registration_token = "test-registration-token"
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as client:
@@ -64,6 +65,7 @@ async def test_heartbeat_delivers_pending_tasks_with_live_services(live_app_clie
             "os_info": "Linux",
             "agent_version": "0.1.0",
         },
+        headers={"X-Registration-Token": "test-registration-token"},
     )
     register_payload = register_response.json()
     auth_response = await client.post(
@@ -119,6 +121,7 @@ async def test_task_ack_updates_task_status_with_live_services(live_app_client) 
             "os_info": "Linux",
             "agent_version": "0.1.0",
         },
+        headers={"X-Registration-Token": "test-registration-token"},
     )
     register_payload = register_response.json()
     auth_response = await client.post(

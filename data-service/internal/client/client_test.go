@@ -15,10 +15,12 @@ import (
 )
 
 func TestRegister(t *testing.T) {
+	var registrationToken string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/api/v1/data-service/register" {
 			t.Fatalf("unexpected path: %s", r.URL.Path)
 		}
+		registrationToken = r.Header.Get("X-Registration-Token")
 		_ = json.NewEncoder(w).Encode(map[string]string{
 			"client_id": "client-1",
 			"api_key":   "secret",
@@ -31,12 +33,15 @@ func TestRegister(t *testing.T) {
 		t.Fatalf("new client: %v", err)
 	}
 
-	clientID, apiKey, err := c.Register(context.Background(), "host", "/watch", "linux", "0.1.0")
+	clientID, apiKey, err := c.Register(context.Background(), "host", "/watch", "linux", "0.1.0", "registration-secret")
 	if err != nil {
 		t.Fatalf("register: %v", err)
 	}
 	if clientID != "client-1" || apiKey != "secret" {
 		t.Fatalf("unexpected register response: %q %q", clientID, apiKey)
+	}
+	if registrationToken != "registration-secret" {
+		t.Fatalf("expected registration secret header, got %q", registrationToken)
 	}
 }
 
@@ -51,7 +56,7 @@ func TestRegisterHandlesServerError(t *testing.T) {
 		t.Fatalf("new client: %v", err)
 	}
 
-	_, _, err = c.Register(context.Background(), "host", "/watch", "linux", "0.1.0")
+	_, _, err = c.Register(context.Background(), "host", "/watch", "linux", "0.1.0", "registration-secret")
 	if err == nil || !strings.Contains(err.Error(), "500") {
 		t.Fatalf("expected 500 error, got %v", err)
 	}

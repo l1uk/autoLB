@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from app.domain import Base
 from app.core.database import get_db_session
 from app.core import security
+from app.api.v1 import data_service_auth
 from app.main import app
 
 
@@ -73,6 +74,8 @@ async def async_client(
     security._redis_client = fake_redis
     security.settings.jwt_private_key_path = tmp_path / "jwt_private.pem"
     security.settings.jwt_public_key_path = tmp_path / "jwt_public.pem"
+    security.settings.registration_token = "test-registration-token"
+    data_service_auth.settings.registration_token = "test-registration-token"
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as client:

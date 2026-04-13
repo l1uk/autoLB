@@ -35,6 +35,7 @@ async def integration_client() -> AsyncIterator[AsyncClient]:
     redis = security.get_redis_client()
     await redis.flushdb()
     security.settings.token_local_validation = False
+    security.settings.registration_token = "test-registration-token"
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as client:
@@ -57,6 +58,7 @@ async def test_data_service_register_auth_and_session_with_live_services(integra
             "os_info": "Linux",
             "agent_version": "0.1.0",
         },
+        headers={"X-Registration-Token": "test-registration-token"},
     )
 
     assert register_response.status_code == 201
@@ -96,6 +98,7 @@ async def test_data_service_auth_rejects_invalid_api_key_with_live_services(inte
             "os_info": "Linux",
             "agent_version": "0.1.0",
         },
+        headers={"X-Registration-Token": "test-registration-token"},
     )
     client_id = register_response.json()["client_id"]
 

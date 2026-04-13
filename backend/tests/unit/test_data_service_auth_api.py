@@ -42,6 +42,7 @@ async def test_data_service_register_happy_path(async_client, db_session) -> Non
             "os_info": "Windows 11",
             "agent_version": "0.1.0",
         },
+        headers={"X-Registration-Token": "test-registration-token"},
     )
 
     assert response.status_code == 201
@@ -122,6 +123,39 @@ async def test_data_service_protected_endpoint_happy_path(async_client, db_sessi
 
     assert response.status_code == 200
     assert response.json()["client_id"] == str(client.id)
+
+
+@pytest.mark.asyncio
+async def test_data_service_register_rejects_missing_registration_token(async_client) -> None:
+    response = await async_client.post(
+        "/api/v1/data-service/register",
+        json={
+            "hostname": "acq-pc-01",
+            "watch_folder": "C:/watch",
+            "os_info": "Windows 11",
+            "agent_version": "0.1.0",
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Invalid registration token"
+
+
+@pytest.mark.asyncio
+async def test_data_service_register_rejects_wrong_registration_token(async_client) -> None:
+    response = await async_client.post(
+        "/api/v1/data-service/register",
+        json={
+            "hostname": "acq-pc-01",
+            "watch_folder": "C:/watch",
+            "os_info": "Windows 11",
+            "agent_version": "0.1.0",
+        },
+        headers={"X-Registration-Token": "wrong-token"},
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Invalid registration token"
 
 
 @pytest.mark.asyncio

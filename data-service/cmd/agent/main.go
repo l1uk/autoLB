@@ -15,17 +15,28 @@ import (
 	"autologbook/data-service/internal/client"
 	"autologbook/data-service/internal/config"
 	"autologbook/data-service/internal/queue"
-	"autologbook/data-service/internal/watcher"
+	"github.com/kardianos/service"
 )
 
 const agentVersion = "0.1.0"
 
 func main() {
 	configPath := flag.String("config", "config.toml", "Path to TOML config file")
+	serviceAction := flag.String("service", "", "Service control action: install, uninstall, start, stop, restart")
 	flag.Parse()
 
-	logger := log.New(os.Stdout, "agent: ", log.LstdFlags)
-	cfg, err := config.Load(*configPath)
+	interactive := service.Interactive()
+	logger, err := newAgentLogger(interactive)
+	if err != nil {
+		log.Fatalf("create logger: %v", err)
+	}
+
+	resolvedConfigPath, err := normalizeConfigPath(*configPath, !interactive || *serviceAction != "")
+	if err != nil {
+		logger.Fatalf("resolve config path: %v", err)
+	}
+
+	cfg, err := config.Load(resolvedConfigPath)
 	if err != nil {
 		logger.Fatalf("load config: %v", err)
 	}
@@ -35,44 +46,55 @@ func main() {
 		logger.Fatalf("create client: %v", err)
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
-	if err := bootstrap(ctx, *configPath, &cfg, apiClient); err != nil {
-		logger.Fatalf("bootstrap: %v", err)
-	}
-
-	uploadQueue, err := queue.Open("", apiClient)
-	if err != nil {
-		logger.Fatalf("open queue: %v", err)
-	}
-	defer uploadQueue.Close()
-
-	fileWatcher, err := watcher.New(cfg.WatchFolder, apiClient, uploadQueue, logger)
-	if err != nil {
-		logger.Fatalf("create watcher: %v", err)
-	}
-	defer fileWatcher.Close()
-
-	go func() {
-		if err := fileWatcher.Start(ctx); err != nil && !errors.Is(err, context.Canceled) {
-			logger.Printf("watcher stopped: %v", err)
-			stop()
+	if *serviceAction != "" {
+		svc, err := newAgentService(resolvedConfigPath, &cfg, apiClient, logger)
+		if err != nil {
+			logger.Fatalf("create service: %v", err)
 		}
-	}()
 
-	go runQueueProcessor(ctx, logger, uploadQueue)
-	runHeartbeatLoop(ctx, logger, apiClient, cfg)
+		if err := service.Control(svc, *serviceAction); err != nil {
+			logger.Fatalf("service %s: %v", *serviceAction, err)
+		}
+		return
+	}
+
+	if interactive {
+		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+		defer stop()
+
+		runtime, err := newAgentRuntime(ctx, resolvedConfigPath, &cfg, apiClient, logger)
+		if err != nil {
+			logger.Fatalf("bootstrap: %v", err)
+		}
+
+		if err := runtime.run(ctx); err != nil && !errors.Is(err, context.Canceled) {
+			logger.Fatalf("agent stopped: %v", err)
+		}
+		return
+	}
+
+	svc, err := newAgentService(resolvedConfigPath, &cfg, apiClient, logger)
+	if err != nil {
+		logger.Fatalf("create service: %v", err)
+	}
+	if err := svc.Run(); err != nil {
+		logger.Fatalf("run service: %v", err)
+	}
 }
 
-func bootstrap(ctx context.Context, configPath string, cfg *config.Config, apiClient *client.Client) error {
+type registrationClient interface {
+	Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion, registrationSecret string) (string, string, error)
+	Auth(ctx context.Context) (string, time.Time, error)
+}
+
+func bootstrap(ctx context.Context, configPath string, cfg *config.Config, apiClient registrationClient) error {
 	if cfg.ClientID == "" {
 		hostname, err := os.Hostname()
 		if err != nil {
 			return err
 		}
 
-		clientID, apiKey, err := apiClient.Register(ctx, hostname, cfg.WatchFolder, runtime.GOOS+"/"+runtime.GOARCH, agentVersion)
+		clientID, apiKey, err := apiClient.Register(ctx, hostname, cfg.WatchFolder, runtime.GOOS+"/"+runtime.GOARCH, agentVersion, cfg.RegistrationSecret)
 		if err != nil {
 			return err
 		}

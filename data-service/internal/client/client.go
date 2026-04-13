@@ -157,7 +157,7 @@ func (c *Client) setSessionToken(token string) {
 	c.session = token
 }
 
-func (c *Client) Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion string) (string, string, error) {
+func (c *Client) Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion, registrationSecret string) (string, string, error) {
 	reqBody := registerRequest{
 		Hostname:     hostname,
 		WatchFolder:  watchFolder,
@@ -166,7 +166,9 @@ func (c *Client) Register(ctx context.Context, hostname, watchFolder, osInfo, ag
 	}
 
 	var resp registerResponse
-	if err := c.doJSON(ctx, http.MethodPost, "/api/v1/data-service/register", reqBody, &resp, ""); err != nil {
+	if err := c.doJSON(ctx, http.MethodPost, "/api/v1/data-service/register", reqBody, &resp, "", map[string]string{
+		"X-Registration-Token": registrationSecret,
+	}); err != nil {
 		return "", "", err
 	}
 
@@ -295,7 +297,7 @@ func (c *Client) withAuthRetry(ctx context.Context, fn func(token string) error)
 	return fn(c.SessionToken())
 }
 
-func (c *Client) doJSON(ctx context.Context, method, endpoint string, requestBody any, responseBody any, bearerToken string) error {
+func (c *Client) doJSON(ctx context.Context, method, endpoint string, requestBody any, responseBody any, bearerToken string, extraHeaders ...map[string]string) error {
 	bodyBytes, err := json.Marshal(requestBody)
 	if err != nil {
 		return err
@@ -308,6 +310,13 @@ func (c *Client) doJSON(ctx context.Context, method, endpoint string, requestBod
 	req.Header.Set("Content-Type", "application/json")
 	if bearerToken != "" {
 		req.Header.Set("Authorization", "Bearer "+bearerToken)
+	}
+	if len(extraHeaders) > 0 {
+		for key, value := range extraHeaders[0] {
+			if value != "" {
+				req.Header.Set(key, value)
+			}
+		}
 	}
 
 	resp, err := c.httpClient.Do(req)

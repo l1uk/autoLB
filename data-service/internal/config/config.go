@@ -15,6 +15,7 @@ type Config struct {
 	ClientID          string        `toml:"client_id"`
 	APIKey            string        `toml:"api_key"`
 	SessionToken      string        `toml:"session_token"`
+	RegistrationSecret string        `toml:"registration_secret"`
 	WatchFolder       string        `toml:"watch_folder"`
 	HeartbeatInterval time.Duration `toml:"heartbeat_interval"`
 	CACertPath        string        `toml:"ca_cert_path"`

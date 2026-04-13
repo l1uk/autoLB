@@ -32,3 +32,17 @@ build/
 
 .DS_Store
 .codex/
+
+# Go binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Dependency directory
+vendor/
+
+# Configuration with secrets
+config.toml

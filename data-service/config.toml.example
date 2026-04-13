@@ -1,0 +1,8 @@
+backend_url = "http://host.docker.internal:8000"
+watch_folder = "C:/Autologbook/Watch"
+heartbeat_interval = "30s"
+ca_cert_path = ""
+client_id = ""
+api_key = ""
+session_token = ""
+registration_secret = "replace-with-your-shared-secret"

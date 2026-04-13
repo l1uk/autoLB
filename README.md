@@ -116,6 +116,7 @@ ca_cert_path = ""
 client_id = ""
 api_key = ""
 session_token = ""
+registration_secret = "replace-with-your-shared-secret"
 ```
 
 Example agent run command:
@@ -124,6 +125,51 @@ Example agent run command:
 docker compose -f data-service/docker-compose.yml run --rm agent \
   go run ./cmd/agent -config /workspace/data-service/config.toml
 ```
+
+Deployment & Installation
+
+For a Windows workstation, create a real config file first and place it in a stable location such as `C:\ProgramData\autologbook\config.toml`. The `registration_secret` value must match the shared secret expected by your backend. The agent uses that value only when `client_id` is empty, which makes it safe to keep in the file after the first successful registration.
+
+Example Windows config:
+
+```toml
+backend_url = "http://backend.company.local:8000"
+watch_folder = "D:\\Autologbook\\Watch"
+heartbeat_interval = "30s"
+ca_cert_path = ""
+client_id = ""
+api_key = ""
+session_token = ""
+registration_secret = "replace-with-your-shared-secret"
+```
+
+You can install the agent as a Windows Service in either of these ways:
+
+1. Built-in service control flag
+
+```powershell
+autologbook-agent.exe -config "C:\ProgramData\autologbook\config.toml" -service install
+autologbook-agent.exe -config "C:\ProgramData\autologbook\config.toml" -service start
+```
+
+To stop or remove it later:
+
+```powershell
+autologbook-agent.exe -config "C:\ProgramData\autologbook\config.toml" -service stop
+autologbook-agent.exe -config "C:\ProgramData\autologbook\config.toml" -service uninstall
+```
+
+2. NSSM
+
+```powershell
+nssm install autologbook-agent "C:\Program Files\Autologbook\autologbook-agent.exe"
+nssm set autologbook-agent AppParameters "-config C:\ProgramData\autologbook\config.toml"
+nssm start autologbook-agent
+```
+
+When the agent runs as a service, it writes persistent logs to `%ProgramData%\autologbook\logs\agent.log`. If you run it in a terminal for debugging, logs go to the console instead.
+
+To verify that the service is running, use Services.msc, `Get-Service autologbook-agent`, or `sc query autologbook-agent`. If the service starts but does not register correctly, check the log file above first; it records configuration load failures, registration errors, authentication errors, and heartbeat problems.
 
 Current limitations
 

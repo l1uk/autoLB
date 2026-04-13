@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -48,7 +48,22 @@ class DataServiceAuthResponse(BaseModel):
     expires_at: datetime
 
 
-@router.post("/register", response_model=DataServiceRegisterResponse, status_code=status.HTTP_201_CREATED)
+def verify_registration_token(
+    x_registration_token: str | None = Header(default=None, alias="X-Registration-Token"),
+) -> None:
+    if not settings.registration_token or x_registration_token != settings.registration_token:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid registration token",
+        )
+
+
+@router.post(
+    "/register",
+    response_model=DataServiceRegisterResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(verify_registration_token)],
+)
 async def register_data_service_client(
     payload: DataServiceRegisterRequest,
     db_session: AsyncSession = Depends(get_db_session),

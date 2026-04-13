@@ -32,6 +32,7 @@ func TestSaveRoundTrip(t *testing.T) {
 		ClientID:          "client-1",
 		APIKey:            "api-key",
 		SessionToken:      "session",
+		RegistrationSecret: "shared-secret",
 		WatchFolder:       "/watch",
 		HeartbeatInterval: 10 * time.Second,
 		CACertPath:        "/cert.pem",
@@ -46,7 +47,7 @@ func TestSaveRoundTrip(t *testing.T) {
 		t.Fatalf("reload config: %v", err)
 	}
 
-	if loaded.ClientID != cfg.ClientID || loaded.SessionToken != cfg.SessionToken {
+	if loaded.ClientID != cfg.ClientID || loaded.SessionToken != cfg.SessionToken || loaded.RegistrationSecret != cfg.RegistrationSecret {
 		t.Fatalf("round trip mismatch: %#v", loaded)
 	}
 }
