@@ -1,0 +1,157 @@
+{
+  "info": {
+    "_postman_id": "7c4b1d5d-0c7f-4f70-a87d-3a1b4a0e2d01",
+    "name": "Autologbook Data Service",
+    "description": "Postman collection for mocking a new data-service device against the backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register Device",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Registration-Token",
+            "value": "{{registrationToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hostname\": \"mock-acq-pc-01\",\n  \"watch_folder\": \"C:/Mock/Watch\",\n  \"os_info\": \"Windows 11\",\n  \"agent_version\": \"0.1.0\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/data-service/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "data-service",
+            "register"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('register returns 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const payload = pm.response.json();",
+              "pm.test('register returns client_id and api_key', function () {",
+              "  pm.expect(payload.client_id).to.be.ok;",
+              "  pm.expect(payload.api_key).to.be.ok;",
+              "});",
+              "",
+              "pm.environment.set('clientId', payload.client_id);",
+              "pm.environment.set('apiKey', payload.api_key);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authenticate Device",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"api_key\": \"{{apiKey}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/data-service/auth",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "data-service",
+            "auth"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('auth returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const payload = pm.response.json();",
+              "pm.test('auth returns session token', function () {",
+              "  pm.expect(payload.session_token).to.be.ok;",
+              "});",
+              "",
+              "pm.environment.set('sessionToken', payload.session_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Heartbeat",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{sessionToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_id\": \"{{clientId}}\",\n  \"agent_version\": \"0.1.0\",\n  \"status_info\": {\n    \"watch_folder\": \"C:/Mock/Watch\",\n    \"queue_depth\": 0\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/data-service/heartbeat",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "data-service",
+            "heartbeat"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('heartbeat returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

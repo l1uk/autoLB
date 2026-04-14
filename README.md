@@ -90,6 +90,21 @@ docker compose -f data-service/docker-compose.yml run --rm \
 
 This test verifies the real `register -> auth -> heartbeat` path from the Go agent container to the FastAPI backend.
 
+How to test the backend with Postman
+
+Import these two files into Postman:
+
+- [data-service/postman/autologbook-data-service.postman_collection.json](data-service/postman/autologbook-data-service.postman_collection.json)
+- [data-service/postman/autologbook-data-service.postman_environment.json](data-service/postman/autologbook-data-service.postman_environment.json)
+
+Then select the `Autologbook Local` environment and run the requests in this order:
+
+1. Register Device
+2. Authenticate Device
+3. Heartbeat
+
+The `Register Device` request sends `X-Registration-Token` from the environment. On success, the response scripts save `clientId`, `apiKey`, and `sessionToken` into the environment for the next steps.
+
 How the Go agent is intended to be used
 
 The Go daemon entrypoint is [main.go](/home/luc/Documents/autologbook/data-service/cmd/agent/main.go).
