@@ -37,10 +37,11 @@ type Task struct {
 }
 
 type registerRequest struct {
-	Hostname     string `json:"hostname"`
-	WatchFolder  string `json:"watch_folder"`
-	OSInfo       string `json:"os_info"`
-	AgentVersion string `json:"agent_version"`
+	Hostname           string `json:"hostname"`
+	WatchFolder        string `json:"watch_folder"`
+	OSInfo             string `json:"os_info"`
+	AgentVersion       string `json:"agent_version"`
+	RegistrationSecret string `json:"registration_secret"`
 }
 
 type registerResponse struct {
@@ -115,11 +116,18 @@ func New(cfg config.Config) (*Client, error) {
 	}, nil
 }
 
+func ensureSecureTLSConfig(tlsConfig *tls.Config) {
+	if tlsConfig.InsecureSkipVerify {
+		panic("insecure TLS configuration: InsecureSkipVerify must remain false")
+	}
+}
+
 func buildTLSConfig(caCertPath string) (*tls.Config, error) {
 	tlsConfig := &tls.Config{
 		MinVersion:         tls.VersionTLS12,
 		InsecureSkipVerify: false,
 	}
+	ensureSecureTLSConfig(tlsConfig)
 	if caCertPath == "" {
 		return tlsConfig, nil
 	}
@@ -138,6 +146,7 @@ func buildTLSConfig(caCertPath string) (*tls.Config, error) {
 	}
 
 	tlsConfig.RootCAs = pool
+	ensureSecureTLSConfig(tlsConfig)
 	return tlsConfig, nil
 }
 
@@ -159,16 +168,15 @@ func (c *Client) setSessionToken(token string) {
 
 func (c *Client) Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion, registrationSecret string) (string, string, error) {
 	reqBody := registerRequest{
-		Hostname:     hostname,
-		WatchFolder:  watchFolder,
-		OSInfo:       osInfo,
-		AgentVersion: agentVersion,
+		Hostname:           hostname,
+		WatchFolder:        watchFolder,
+		OSInfo:             osInfo,
+		AgentVersion:       agentVersion,
+		RegistrationSecret: registrationSecret,
 	}
 
 	var resp registerResponse
-	if err := c.doJSON(ctx, http.MethodPost, "/api/v1/data-service/register", reqBody, &resp, "", map[string]string{
-		"X-Registration-Token": registrationSecret,
-	}); err != nil {
+	if err := c.doJSON(ctx, http.MethodPost, "/api/v1/data-service/register", reqBody, &resp, ""); err != nil {
 		return "", "", err
 	}
 

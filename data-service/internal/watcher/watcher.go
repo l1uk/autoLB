@@ -120,9 +120,14 @@ func (w *Watcher) handleCreate(ctx context.Context, fullPath string, fileSize in
 		return nil
 	}
 
-	return w.queue.Enqueue(ctx, queue.Item{
+	if err := w.queue.Enqueue(ctx, queue.Item{
 		ContextID: contextID,
 		LocalPath: fullPath,
 		Filename:  filename,
-	})
+	}); err != nil {
+		return err
+	}
+
+	w.logger.Printf("enqueued file path=%s context_id=%s", fullPath, contextID)
+	return nil
 }

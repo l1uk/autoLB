@@ -25,9 +25,10 @@ func TestLiveRegisterAuthHeartbeat(t *testing.T) {
 
 	configPath := filepath.Join(configDir, "config.toml")
 	cfg := config.Config{
-		BackendURL:        backendURL,
-		WatchFolder:       watchDir,
-		HeartbeatInterval: time.Second,
+		BackendURL:         backendURL,
+		WatchFolder:        watchDir,
+		HeartbeatInterval:  time.Second,
+		RegistrationSecret: os.Getenv("DATA_SERVICE_LIVE_REGISTRATION_SECRET"),
 	}
 	if err := cfg.Save(configPath); err != nil {
 		t.Fatalf("save config: %v", err)

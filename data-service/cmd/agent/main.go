@@ -35,11 +35,13 @@ func main() {
 	if err != nil {
 		logger.Fatalf("resolve config path: %v", err)
 	}
+	logger.Printf("agent starting mode=%s config=%s", map[bool]string{true: "interactive", false: "service"}[interactive], resolvedConfigPath)
 
 	cfg, err := config.Load(resolvedConfigPath)
 	if err != nil {
 		logger.Fatalf("load config: %v", err)
 	}
+	logger.Printf("config loaded backend=%s watch_folder=%s heartbeat_interval=%s", cfg.BackendURL, cfg.WatchFolder, cfg.HeartbeatInterval)
 
 	apiClient, err := client.New(cfg)
 	if err != nil {

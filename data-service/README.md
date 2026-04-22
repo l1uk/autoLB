@@ -100,7 +100,3 @@ To compile the agent from source:
     ```bash
     go build -ldflags="-H windowsgui -s -w" -o agent.exe main.go
     ```
-
----
-
-Does this documentation look complete enough for your laboratory's IT requirements, or should we add a section on how to troubleshoot common network errors?

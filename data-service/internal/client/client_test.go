@@ -15,12 +15,14 @@ import (
 )
 
 func TestRegister(t *testing.T) {
-	var registrationToken string
+	var registerPayload map[string]any
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/api/v1/data-service/register" {
 			t.Fatalf("unexpected path: %s", r.URL.Path)
 		}
-		registrationToken = r.Header.Get("X-Registration-Token")
+		if err := json.NewDecoder(r.Body).Decode(&registerPayload); err != nil {
+			t.Fatalf("decode register payload: %v", err)
+		}
 		_ = json.NewEncoder(w).Encode(map[string]string{
 			"client_id": "client-1",
 			"api_key":   "secret",
@@ -40,8 +42,8 @@ func TestRegister(t *testing.T) {
 	if clientID != "client-1" || apiKey != "secret" {
 		t.Fatalf("unexpected register response: %q %q", clientID, apiKey)
 	}
-	if registrationToken != "registration-secret" {
-		t.Fatalf("expected registration secret header, got %q", registrationToken)
+	if registerPayload["registration_secret"] != "registration-secret" {
+		t.Fatalf("expected registration_secret in payload, got %v", registerPayload["registration_secret"])
 	}
 }
 

@@ -53,7 +53,9 @@ func newAgentLogger(interactive bool) (*log.Logger, error) {
 		MaxAge:     30,
 		Compress:   true,
 	}
-	return log.New(writer, "agent: ", log.LstdFlags|log.Lmicroseconds), nil
+	logger := log.New(writer, "agent: ", log.LstdFlags|log.Lmicroseconds)
+	logger.Printf("service logger initialized path=%s", logPath)
+	return logger, nil
 }
 
 func serviceLogPath() (string, error) {
@@ -85,6 +87,7 @@ func newAgentRuntime(ctx context.Context, configPath string, cfg *config.Config,
 	if err := bootstrap(ctx, configPath, cfg, apiClient); err != nil {
 		return nil, err
 	}
+	logger.Printf("bootstrap completed client_id=%s", cfg.ClientID)
 
 	uploadQueue, err := queue.Open("", apiClient)
 	if err != nil {
@@ -111,6 +114,7 @@ func (r *agentRuntime) run(parentCtx context.Context) error {
 	defer cancel()
 	defer r.fileWatcher.Close()
 	defer r.uploadQueue.Close()
+	r.logger.Printf("runtime loops starting watch_folder=%s", r.cfg.WatchFolder)
 
 	fatalErr := make(chan error, 1)
 	var once sync.Once
@@ -126,6 +130,7 @@ func (r *agentRuntime) run(parentCtx context.Context) error {
 
 	go runQueueProcessor(ctx, r.logger, r.uploadQueue)
 	runHeartbeatLoop(ctx, r.logger, r.apiClient, *r.cfg)
+	r.logger.Printf("runtime heartbeat loop stopped")
 
 	select {
 	case err := <-fatalErr:
@@ -171,6 +176,7 @@ func newAgentService(configPath string, cfg *config.Config, apiClient *client.Cl
 }
 
 func (p *agentServiceProgram) Start(s service.Service) error {
+	p.logger.Printf("service start requested")
 	runtime, err := newAgentRuntime(context.Background(), p.configPath, p.cfg, p.apiClient, p.logger)
 	if err != nil {
 		return err
@@ -194,6 +200,7 @@ func (p *agentServiceProgram) Start(s service.Service) error {
 }
 
 func (p *agentServiceProgram) Stop(service.Service) error {
+	p.logger.Printf("service stop requested")
 	if p.cancel != nil {
 		p.cancel()
 	}

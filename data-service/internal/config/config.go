@@ -11,14 +11,14 @@ import (
 const DefaultHeartbeatInterval = 30 * time.Second
 
 type Config struct {
-	BackendURL        string        `toml:"backend_url"`
-	ClientID          string        `toml:"client_id"`
-	APIKey            string        `toml:"api_key"`
-	SessionToken      string        `toml:"session_token"`
+	BackendURL         string        `toml:"backend_url"`
+	ClientID           string        `toml:"client_id"`
+	APIKey             string        `toml:"api_key"`
+	SessionToken       string        `toml:"session_token"`
 	RegistrationSecret string        `toml:"registration_secret"`
-	WatchFolder       string        `toml:"watch_folder"`
-	HeartbeatInterval time.Duration `toml:"heartbeat_interval"`
-	CACertPath        string        `toml:"ca_cert_path"`
+	WatchFolder        string        `toml:"watch_folder"`
+	HeartbeatInterval  time.Duration `toml:"heartbeat_interval"`
+	CACertPath         string        `toml:"ca_cert_path"`
 }
 
 func Load(path string) (Config, error) {
@@ -31,6 +31,7 @@ func Load(path string) (Config, error) {
 		return cfg, err
 	}
 
+	cfg.applyEnvOverrides()
 	cfg.applyDefaults()
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
@@ -53,6 +54,15 @@ func (c Config) Save(path string) error {
 func (c *Config) applyDefaults() {
 	if c.HeartbeatInterval == 0 {
 		c.HeartbeatInterval = DefaultHeartbeatInterval
+	}
+}
+
+func (c *Config) applyEnvOverrides() {
+	if registrationSecret := os.Getenv("REGISTRATION_SECRET"); registrationSecret != "" {
+		c.RegistrationSecret = registrationSecret
+	}
+	if caCertPath := os.Getenv("CA_CERT_PATH"); caCertPath != "" {
+		c.CACertPath = caCertPath
 	}
 }
 

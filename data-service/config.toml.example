@@ -1,8 +1,15 @@
 backend_url = "http://host.docker.internal:8000"
 watch_folder = "C:/Autologbook/Watch"
 heartbeat_interval = "30s"
+
+# Path to a PEM CA certificate for internal/self-signed PKI deployments.
+# Leave empty to use the OS trust store.
 ca_cert_path = ""
+
 client_id = ""
 api_key = ""
 session_token = ""
+
+# Shared secret required during first-time registration only.
+# May also be supplied by REGISTRATION_SECRET environment variable.
 registration_secret = "replace-with-your-shared-secret"
