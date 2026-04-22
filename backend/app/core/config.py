@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     minio_bucket: str = Field(alias="MINIO_BUCKET")
     secret_key: str = Field(alias="SECRET_KEY")
     registration_token: str = Field(default="", alias="REGISTRATION_TOKEN")
+    data_service_latest_version: str = Field(default="", alias="DATA_SERVICE_LATEST_VERSION")
+    data_service_auto_update_enabled: bool = Field(
+        default=False,
+        alias="DATA_SERVICE_AUTO_UPDATE_ENABLED",
+    )
     jwt_algorithm: str = Field(default="RS256", alias="JWT_ALGORITHM")
     access_token_ttl_minutes: int = Field(default=15, alias="ACCESS_TOKEN_TTL_MINUTES")
     refresh_token_ttl_days: int = Field(default=7, alias="REFRESH_TOKEN_TTL_DAYS")

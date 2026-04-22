@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import get_settings
 from app.core.database import get_db_session
 from app.core.security import verify_data_service_token
 from app.domain.enums import DataServiceClientStatus, DataServiceTaskStatus
@@ -34,10 +35,28 @@ class HeartbeatResponse(BaseModel):
     tasks: list[HeartbeatTaskResponse]
 
 
+class VersionResponse(BaseModel):
+    latest_version: str
+    auto_update_enabled: bool
+
+
 class TaskAckRequest(BaseModel):
     task_id: UUID
     status: DataServiceTaskStatus
     error_message: str | None = None
+
+
+@router.get("/version", response_model=VersionResponse)
+async def data_service_version(
+    principal: DataServiceClient | object = Depends(verify_data_service_token),
+) -> VersionResponse:
+    _ = principal
+    settings = get_settings()
+    latest_version = settings.data_service_latest_version or "0.1.0"
+    return VersionResponse(
+        latest_version=latest_version,
+        auto_update_enabled=settings.data_service_auto_update_enabled,
+    )
 
 
 @router.post("/heartbeat", response_model=HeartbeatResponse)

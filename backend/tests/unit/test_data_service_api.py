@@ -6,6 +6,7 @@ from uuid import uuid4
 import pytest
 
 from app.core import security
+from app.core.config import get_settings
 from app.domain.enums import DataServiceClientStatus, DataServiceTaskStatus
 from app.domain.models import DataServiceClient, DataServiceTask
 from app.tasks import mark_offline_clients_impl
@@ -89,6 +90,30 @@ async def test_heartbeat_rejects_client_id_mismatch(async_client, db_session) ->
     security.settings.token_local_validation = True
 
     assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_data_service_version(async_client, db_session) -> None:
+    security.settings.token_local_validation = False
+    _, token = await create_authenticated_client(db_session)
+    monkeypatch = pytest.MonkeyPatch()
+    monkeypatch.setenv("DATA_SERVICE_LATEST_VERSION", "9.9.9")
+    monkeypatch.setenv("DATA_SERVICE_AUTO_UPDATE_ENABLED", "true")
+    get_settings.cache_clear()
+
+    try:
+        response = await async_client.get(
+            "/api/v1/data-service/version",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["latest_version"] == "9.9.9"
+        assert payload["auto_update_enabled"] is True
+    finally:
+        security.settings.token_local_validation = True
+        get_settings.cache_clear()
+        monkeypatch.undo()
 
 
 @pytest.mark.asyncio
