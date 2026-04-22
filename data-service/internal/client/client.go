@@ -98,53 +98,73 @@ type Client struct {
 }
 
 func New(cfg config.Config) (*Client, error) {
-	tlsConfig, err := buildTLSConfig(cfg.CACertPath)
+	httpClient, err := buildHTTPClient(cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Client{
-		baseURL: strings.TrimRight(cfg.BackendURL, "/"),
-		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
-			Transport: &http.Transport{
-				TLSClientConfig: tlsConfig,
-			},
-		},
-		clientID: cfg.ClientID,
-		apiKey:   cfg.APIKey,
+		baseURL:            strings.TrimRight(cfg.BackendURL, "/"),
+		httpClient:         httpClient,
+		clientID:           cfg.ClientID,
+		apiKey:             cfg.APIKey,
 		registrationSecret: cfg.RegistrationSecret,
-		session:  cfg.SessionToken,
+		session:            cfg.SessionToken,
+	}, nil
+}
+
+// buildHTTPClient constructs an *http.Client with proper TLS configuration.
+// If cfg.CACertPath is non-empty, it reads the PEM file and injects the
+// certificate pool into TLSClientConfig.RootCAs. InsecureSkipVerify is
+// hardcoded to false per SRS §8.1 "InsecureSkipVerify always false".
+func buildHTTPClient(cfg config.Config) (*http.Client, error) {
+	tlsConfig, err := buildTLSConfig(cfg.CACertPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
 	}, nil
 }
 
 func ensureSecureTLSConfig(tlsConfig *tls.Config) {
 	if tlsConfig.InsecureSkipVerify {
-		panic("insecure TLS configuration: InsecureSkipVerify must remain false")
+		panic("insecure TLS configuration: InsecureSkipVerify must remain false (SRS §8.1)")
 	}
 }
 
+// buildTLSConfig constructs a *tls.Config with secure defaults and optional custom CA support.
+// If caCertPath is non-empty, reads the PEM file and configures a custom RootCAs pool.
+// InsecureSkipVerify is always false per SRS §8.1.
 func buildTLSConfig(caCertPath string) (*tls.Config, error) {
 	tlsConfig := &tls.Config{
 		MinVersion:         tls.VersionTLS12,
-		InsecureSkipVerify: false,
+		InsecureSkipVerify: false, // SRS §8.1: InsecureSkipVerify always false
 	}
 	ensureSecureTLSConfig(tlsConfig)
 	if caCertPath == "" {
 		return tlsConfig, nil
 	}
 
+	// Read custom CA certificate from file
 	pemBytes, err := os.ReadFile(caCertPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read CA certificate file %q: %w", caCertPath, err)
 	}
 
+	// Start with system CA pool or create empty pool
 	pool, err := x509.SystemCertPool()
 	if err != nil || pool == nil {
 		pool = x509.NewCertPool()
 	}
+
+	// Append custom CA certificate to pool
 	if !pool.AppendCertsFromPEM(pemBytes) {
-		return nil, errors.New("failed to append CA certificate")
+		return nil, fmt.Errorf("failed to parse CA certificate from %q: invalid PEM format", caCertPath)
 	}
 
 	tlsConfig.RootCAs = pool

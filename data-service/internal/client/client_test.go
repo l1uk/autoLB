@@ -2,17 +2,218 @@ package client
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"io"
+	"math/big"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"autologbook/data-service/internal/config"
 )
+
+// generateTestCA generates a self-signed CA certificate for testing purposes.
+// Returns PEM-encoded certificate bytes.
+func generateTestCA(t *testing.T) []byte {
+	// Generate a new RSA key
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("generate RSA key: %v", err)
+	}
+
+	// Create a certificate template
+	notBefore := time.Now()
+	notAfter := notBefore.Add(365 * 24 * time.Hour)
+
+	serialNumber, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	if err != nil {
+		t.Fatalf("generate serial number: %v", err)
+	}
+
+	template := x509.Certificate{
+		SerialNumber: serialNumber,
+		Subject: pkix.Name{
+			Organization: []string{"Test CA"},
+			Country:      []string{"US"},
+		},
+		NotBefore:             notBefore,
+		NotAfter:              notAfter,
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageDigitalSignature,
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+	}
+
+	// Self-sign the certificate
+	certDER, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
+	if err != nil {
+		t.Fatalf("create certificate: %v", err)
+	}
+
+	// Encode to PEM
+	certPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: certDER,
+	})
+
+	return certPEM
+}
+
+func newTestCertFile(t *testing.T) string {
+	tmpfile, err := os.CreateTemp("", "test-ca-*.pem")
+	if err != nil {
+		t.Fatalf("create temp file: %v", err)
+	}
+	certPEM := generateTestCA(t)
+	if _, err := tmpfile.Write(certPEM); err != nil {
+		tmpfile.Close()
+		os.Remove(tmpfile.Name())
+		t.Fatalf("write cert: %v", err)
+	}
+	tmpfile.Close()
+	t.Cleanup(func() { os.Remove(tmpfile.Name()) })
+	return tmpfile.Name()
+}
+
+func TestBuildHTTPClientUsesOSTrustStore(t *testing.T) {
+	cfg := config.Config{
+		BackendURL:  "https://backend",
+		WatchFolder: "/watch",
+		CACertPath:  "", // No custom CA
+	}
+
+	client, err := buildHTTPClient(cfg)
+	if err != nil {
+		t.Fatalf("buildHTTPClient: %v", err)
+	}
+
+	if client == nil {
+		t.Fatalf("expected non-nil client")
+	}
+	if client.Timeout != 30*time.Second {
+		t.Fatalf("unexpected timeout: %v", client.Timeout)
+	}
+
+	transport, ok := client.Transport.(*http.Transport)
+	if !ok {
+		t.Fatalf("expected *http.Transport, got %T", client.Transport)
+	}
+
+	if transport.TLSClientConfig == nil {
+		t.Fatalf("TLSClientConfig is nil")
+	}
+	if transport.TLSClientConfig.MinVersion != tls.VersionTLS12 {
+		t.Fatalf("MinVersion: want %d, got %d", tls.VersionTLS12, transport.TLSClientConfig.MinVersion)
+	}
+	if transport.TLSClientConfig.InsecureSkipVerify {
+		t.Fatalf("InsecureSkipVerify must be false (SRS §8.1)")
+	}
+	// When no custom CA is provided, RootCAs should be nil (uses OS trust store)
+	if transport.TLSClientConfig.RootCAs != nil {
+		t.Fatalf("RootCAs should be nil when using OS trust store, got %v", transport.TLSClientConfig.RootCAs)
+	}
+}
+
+func TestBuildHTTPClientWithCustomCA(t *testing.T) {
+	certPath := newTestCertFile(t)
+
+	cfg := config.Config{
+		BackendURL:  "https://backend",
+		WatchFolder: "/watch",
+		CACertPath:  certPath,
+	}
+
+	client, err := buildHTTPClient(cfg)
+	if err != nil {
+		t.Fatalf("buildHTTPClient: %v", err)
+	}
+
+	if client == nil {
+		t.Fatalf("expected non-nil client")
+	}
+
+	transport, ok := client.Transport.(*http.Transport)
+	if !ok {
+		t.Fatalf("expected *http.Transport, got %T", client.Transport)
+	}
+
+	if transport.TLSClientConfig == nil {
+		t.Fatalf("TLSClientConfig is nil")
+	}
+	if transport.TLSClientConfig.InsecureSkipVerify {
+		t.Fatalf("InsecureSkipVerify must be false (SRS §8.1)")
+	}
+	// When custom CA is provided, RootCAs should be set
+	if transport.TLSClientConfig.RootCAs == nil {
+		t.Fatalf("RootCAs should not be nil when custom CA is configured")
+	}
+}
+
+func TestBuildHTTPClientCAFileNotFound(t *testing.T) {
+	cfg := config.Config{
+		BackendURL:  "https://backend",
+		WatchFolder: "/watch",
+		CACertPath:  "/nonexistent/path/ca.pem",
+	}
+
+	_, err := buildHTTPClient(cfg)
+	if err == nil {
+		t.Fatalf("expected error for missing CA file")
+	}
+	if !strings.Contains(err.Error(), "failed to read CA certificate file") {
+		t.Fatalf("unexpected error message: %v", err)
+	}
+}
+
+func TestBuildHTTPClientInvalidPEM(t *testing.T) {
+	tmpfile, err := os.CreateTemp("", "invalid-*.pem")
+	if err != nil {
+		t.Fatalf("create temp file: %v", err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	// Write invalid PEM content
+	if _, err := tmpfile.WriteString("not a valid pem file"); err != nil {
+		t.Fatalf("write invalid pem: %v", err)
+	}
+	tmpfile.Close()
+
+	cfg := config.Config{
+		BackendURL:  "https://backend",
+		WatchFolder: "/watch",
+		CACertPath:  tmpfile.Name(),
+	}
+
+	_, err = buildHTTPClient(cfg)
+	if err == nil {
+		t.Fatalf("expected error for invalid PEM")
+	}
+	if !strings.Contains(err.Error(), "failed to parse CA certificate") {
+		t.Fatalf("unexpected error message: %v", err)
+	}
+}
+
+func TestBuildTLSConfigInsecureSkipVerifyAlwaysFalse(t *testing.T) {
+	// This test documents the security invariant: InsecureSkipVerify must always be false
+	tlsConfig, err := buildTLSConfig("")
+	if err != nil {
+		t.Fatalf("buildTLSConfig: %v", err)
+	}
+
+	if tlsConfig.InsecureSkipVerify {
+		t.Fatalf("InsecureSkipVerify must be false per SRS §8.1")
+	}
+}
+
 
 func TestRegister(t *testing.T) {
 	var registerPayload map[string]any
