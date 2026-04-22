@@ -11,13 +11,11 @@ import (
 
 type bootstrapClientStub struct {
 	registerCalls int
-	registerToken string
 	authCalls     int
 }
 
-func (s *bootstrapClientStub) Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion, registrationSecret string) (string, string, error) {
+func (s *bootstrapClientStub) Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion string) (string, string, error) {
 	s.registerCalls++
-	s.registerToken = registrationSecret
 	return "client-1", "api-key", nil
 }
 
@@ -41,9 +39,6 @@ func TestBootstrapUsesRegistrationSecretOnlyWhenRegistering(t *testing.T) {
 	}
 	if client.registerCalls != 1 {
 		t.Fatalf("register calls = %d, want 1", client.registerCalls)
-	}
-	if client.registerToken != "shared-secret" {
-		t.Fatalf("register token = %q, want shared-secret", client.registerToken)
 	}
 	if client.authCalls != 1 {
 		t.Fatalf("auth calls = %d, want 1", client.authCalls)

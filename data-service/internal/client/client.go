@@ -88,12 +88,13 @@ type taskAckRequest struct {
 }
 
 type Client struct {
-	baseURL    string
-	httpClient *http.Client
-	clientID   string
-	apiKey     string
-	mu         sync.RWMutex
-	session    string
+	baseURL            string
+	httpClient         *http.Client
+	clientID           string
+	apiKey             string
+	registrationSecret string
+	mu                 sync.RWMutex
+	session            string
 }
 
 func New(cfg config.Config) (*Client, error) {
@@ -112,6 +113,7 @@ func New(cfg config.Config) (*Client, error) {
 		},
 		clientID: cfg.ClientID,
 		apiKey:   cfg.APIKey,
+		registrationSecret: cfg.RegistrationSecret,
 		session:  cfg.SessionToken,
 	}, nil
 }
@@ -166,17 +168,21 @@ func (c *Client) setSessionToken(token string) {
 	c.session = token
 }
 
-func (c *Client) Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion, registrationSecret string) (string, string, error) {
+func (c *Client) Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion string) (string, string, error) {
 	reqBody := registerRequest{
 		Hostname:           hostname,
 		WatchFolder:        watchFolder,
 		OSInfo:             osInfo,
 		AgentVersion:       agentVersion,
-		RegistrationSecret: registrationSecret,
+		RegistrationSecret: c.registrationSecret,
 	}
 
 	var resp registerResponse
 	if err := c.doJSON(ctx, http.MethodPost, "/api/v1/data-service/register", reqBody, &resp, ""); err != nil {
+		var statusErr *httpStatusError
+		if errors.As(err, &statusErr) && statusErr.statusCode == http.StatusForbidden {
+			return "", "", errors.New("registration rejected: invalid registration_secret - check config")
+		}
 		return "", "", err
 	}
 
@@ -354,8 +360,20 @@ func decodeStatus(resp *http.Response) error {
 		return nil
 	}
 	body, _ := io.ReadAll(resp.Body)
-	if len(body) == 0 {
-		return fmt.Errorf("request failed with status %d", resp.StatusCode)
+	return &httpStatusError{
+		statusCode: resp.StatusCode,
+		body:       strings.TrimSpace(string(body)),
 	}
-	return fmt.Errorf("request failed with status %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+}
+
+type httpStatusError struct {
+	statusCode int
+	body       string
+}
+
+func (e *httpStatusError) Error() string {
+	if e.body == "" {
+		return fmt.Sprintf("request failed with status %d", e.statusCode)
+	}
+	return fmt.Sprintf("request failed with status %d: %s", e.statusCode, e.body)
 }

@@ -30,12 +30,12 @@ func TestRegister(t *testing.T) {
 	}))
 	defer server.Close()
 
-	c, err := New(config.Config{BackendURL: server.URL, WatchFolder: "/watch"})
+	c, err := New(config.Config{BackendURL: server.URL, WatchFolder: "/watch", RegistrationSecret: "registration-secret"})
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
 
-	clientID, apiKey, err := c.Register(context.Background(), "host", "/watch", "linux", "0.1.0", "registration-secret")
+	clientID, apiKey, err := c.Register(context.Background(), "host", "/watch", "linux", "0.1.0")
 	if err != nil {
 		t.Fatalf("register: %v", err)
 	}
@@ -53,14 +53,42 @@ func TestRegisterHandlesServerError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	c, err := New(config.Config{BackendURL: server.URL, WatchFolder: "/watch"})
+	c, err := New(config.Config{BackendURL: server.URL, WatchFolder: "/watch", RegistrationSecret: "registration-secret"})
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
 
-	_, _, err = c.Register(context.Background(), "host", "/watch", "linux", "0.1.0", "registration-secret")
+	_, _, err = c.Register(context.Background(), "host", "/watch", "linux", "0.1.0")
 	if err == nil || !strings.Contains(err.Error(), "500") {
 		t.Fatalf("expected 500 error, got %v", err)
+	}
+}
+
+func TestRegisterHandlesForbiddenWithoutRetry(t *testing.T) {
+	var registerCalls int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/data-service/register" {
+			t.Fatalf("unexpected path: %s", r.URL.Path)
+		}
+		registerCalls++
+		http.Error(w, "invalid registration_secret", http.StatusForbidden)
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{BackendURL: server.URL, WatchFolder: "/watch", RegistrationSecret: "bad-secret"})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	_, _, err = c.Register(context.Background(), "host", "/watch", "linux", "0.1.0")
+	if err == nil {
+		t.Fatalf("expected forbidden error")
+	}
+	if err.Error() != "registration rejected: invalid registration_secret - check config" {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if registerCalls != 1 {
+		t.Fatalf("register calls = %d, want 1", registerCalls)
 	}
 }
 

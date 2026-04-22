@@ -85,7 +85,7 @@ func main() {
 }
 
 type registrationClient interface {
-	Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion, registrationSecret string) (string, string, error)
+	Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion string) (string, string, error)
 	Auth(ctx context.Context) (string, time.Time, error)
 }
 
@@ -96,7 +96,7 @@ func bootstrap(ctx context.Context, configPath string, cfg *config.Config, apiCl
 			return err
 		}
 
-		clientID, apiKey, err := apiClient.Register(ctx, hostname, cfg.WatchFolder, runtime.GOOS+"/"+runtime.GOARCH, agentVersion, cfg.RegistrationSecret)
+		clientID, apiKey, err := apiClient.Register(ctx, hostname, cfg.WatchFolder, runtime.GOOS+"/"+runtime.GOARCH, agentVersion)
 		if err != nil {
 			return err
 		}
