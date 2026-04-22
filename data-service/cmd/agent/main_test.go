@@ -46,6 +46,10 @@ func TestBootstrapUsesRegistrationSecretOnlyWhenRegistering(t *testing.T) {
 	if cfg.ClientID != "client-1" || cfg.APIKey != "api-key" || cfg.SessionToken != "session-1" {
 		t.Fatalf("unexpected cfg after bootstrap: %#v", cfg)
 	}
+	// Verify that RegistrationSecret is zeroed after successful registration (§11.2).
+	if cfg.RegistrationSecret != "" {
+		t.Fatalf("expected RegistrationSecret to be zeroed, got %q", cfg.RegistrationSecret)
+	}
 
 	client = &bootstrapClientStub{}
 	cfg.ClientID = "existing-client"
@@ -61,5 +65,9 @@ func TestBootstrapUsesRegistrationSecretOnlyWhenRegistering(t *testing.T) {
 	}
 	if client.authCalls != 1 {
 		t.Fatalf("auth calls = %d, want 1", client.authCalls)
+	}
+	// Verify that RegistrationSecret is still zeroed on subsequent bootstrap calls.
+	if cfg.RegistrationSecret != "" {
+		t.Fatalf("expected RegistrationSecret to remain zeroed, got %q", cfg.RegistrationSecret)
 	}
 }

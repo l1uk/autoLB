@@ -104,6 +104,10 @@ func bootstrap(ctx context.Context, configPath string, cfg *config.Config, apiCl
 		cfg.APIKey = apiKey
 	}
 
+	// Zero out the registration secret after successful registration.
+	// It is no longer needed and should not be kept in memory (§11.2).
+	cfg.RegistrationSecret = ""
+
 	sessionToken, _, err := apiClient.Auth(ctx)
 	if err != nil {
 		return err

@@ -44,16 +44,35 @@ Edit the file with the following parameters:
 ```toml
 # Backend Connection
 BackendURL = "https://your-api-url.com"
-RegistrationSecret = "YOUR_SHARED_SECRET_HERE" # Ask your Admin
+
+# Registration (first-time only, then can be empty)
+RegistrationSecret = "YOUR_SHARED_SECRET_HERE"
+# Where to get it: Contact the Autologbook administrator.
+# The registration secret is placed in the installer and distributed out-of-band.
+# After successful first registration, this field is zeroed in memory and
+# can be removed from the config file.
 
 # Local Settings
 WatchFolder = "C:\\MicroscopeData\\Acquisitions"
 HeartbeatInterval = "30s"
 
-# Leave these empty; the agent will fill them during bootstrap
+# TLS Configuration (optional)
+CACertPath = ""
+# When to use: If the backend uses a self-signed certificate or internal CA,
+# provide the path to a PEM-encoded CA certificate file.
+# Example: CACertPath = "C:\\Program Files\\Autologbook\\ca-cert.pem"
+# If empty, the system default CA trust store is used (recommended for most deployments).
+
+# Registration & Auth (auto-filled by agent after first registration)
 ClientID = ""
 APIKey = ""
+SessionToken = ""
 ```
+
+**Important Security Notes:**
+* The `APIKey` is stored in the OS keystore (DPAPI on Windows, Secret Service on Linux/macOS), not in the config file.
+* The `RegistrationSecret` is only used once during bootstrap. After that, the agent generates a JWT session token.
+* If you need to re-register the agent, set `ClientID = ""` and provide the `RegistrationSecret` again.
 
 ### 4. Install as a Windows Service
 Open **PowerShell (as Administrator)** and run:
@@ -100,3 +119,17 @@ To compile the agent from source:
     ```bash
     go build -ldflags="-H windowsgui -s -w" -o agent.exe main.go
     ```
+
+### Version Management
+
+The agent version is defined as a constant in [cmd/agent/main.go](cmd/agent/main.go):
+
+```go
+const agentVersion = "0.1.0"
+```
+
+**For Release Builds:**
+* Update `agentVersion` in `cmd/agent/main.go` to match the release tag (e.g., `"0.2.0"`).
+* This version is sent during registration and heartbeats to the backend.
+* The backend uses this to notify the agent of available updates via the `CheckVersion()` endpoint.
+* Do NOT use `-ldflags` to override the version at build time; update the constant directly.
