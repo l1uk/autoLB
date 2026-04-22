@@ -31,6 +31,7 @@ class DataServiceRegisterRequest(BaseModel):
     watch_folder: str
     os_info: str
     agent_version: str
+    registration_secret: str | None = None
 
 
 class DataServiceRegisterResponse(BaseModel):
@@ -48,10 +49,8 @@ class DataServiceAuthResponse(BaseModel):
     expires_at: datetime
 
 
-def verify_registration_token(
-    x_registration_token: str | None = Header(default=None, alias="X-Registration-Token"),
-) -> None:
-    if not settings.registration_token or x_registration_token != settings.registration_token:
+def verify_registration_token(token: str | None) -> None:
+    if not settings.registration_token or token != settings.registration_token:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid registration token",
@@ -62,12 +61,14 @@ def verify_registration_token(
     "/register",
     response_model=DataServiceRegisterResponse,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(verify_registration_token)],
 )
 async def register_data_service_client(
     payload: DataServiceRegisterRequest,
+    x_registration_token: str | None = Header(default=None, alias="X-Registration-Token"),
     db_session: AsyncSession = Depends(get_db_session),
 ) -> DataServiceRegisterResponse:
+    verify_registration_token(payload.registration_secret or x_registration_token)
+
     api_key = generate_api_key()
     client = DataServiceClient(
         hostname=payload.hostname,

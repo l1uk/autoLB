@@ -57,8 +57,8 @@ async def test_data_service_register_auth_and_session_with_live_services(integra
             "watch_folder": "/data/watch",
             "os_info": "Linux",
             "agent_version": "0.1.0",
+            "registration_secret": "test-registration-token",
         },
-        headers={"X-Registration-Token": "test-registration-token"},
     )
 
     assert register_response.status_code == 201
@@ -97,8 +97,8 @@ async def test_data_service_auth_rejects_invalid_api_key_with_live_services(inte
             "watch_folder": "/data/watch",
             "os_info": "Linux",
             "agent_version": "0.1.0",
+            "registration_secret": "test-registration-token",
         },
-        headers={"X-Registration-Token": "test-registration-token"},
     )
     client_id = register_response.json()["client_id"]
 
