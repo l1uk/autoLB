@@ -123,6 +123,69 @@ func (q *Queue) ProcessNext(ctx context.Context) (bool, error) {
 	return true, err
 }
 
+// MarkFailed marks an item as permanently failed with the given reason.
+// This prevents it from being replayed in the FIFO queue.
+func (q *Queue) MarkFailed(ctx context.Context, id int64, reason string) error {
+	_, err := q.db.ExecContext(
+		ctx,
+		`UPDATE uploads SET status = ?, error = ? WHERE id = ?`,
+		statusFailed,
+		reason,
+		id,
+	)
+	return err
+}
+
+// ListFailed returns all permanently failed items.
+// Used for observability and future admin tooling.
+func (q *Queue) ListFailed(ctx context.Context) ([]Item, error) {
+	rows, err := q.db.QueryContext(
+		ctx,
+		`SELECT id, context_id, local_path, filename, status, attempts, last_attempt, error
+		 FROM uploads
+		 WHERE status = ?
+		 ORDER BY id ASC`,
+		statusFailed,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []Item
+	for rows.Next() {
+		var item Item
+		var lastAttempt sql.NullString
+		if err := rows.Scan(
+			&item.ID,
+			&item.ContextID,
+			&item.LocalPath,
+			&item.Filename,
+			&item.Status,
+			&item.Attempts,
+			&lastAttempt,
+			&item.Error,
+		); err != nil {
+			return nil, err
+		}
+
+		if lastAttempt.Valid {
+			parsed, err := time.Parse(time.RFC3339Nano, lastAttempt.String)
+			if err != nil {
+				return nil, err
+			}
+			item.LastAttempt = &parsed
+		}
+
+		items = append(items, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 func (q *Queue) initSchema() error {
 	_, err := q.db.Exec(`
 		CREATE TABLE IF NOT EXISTS uploads (
