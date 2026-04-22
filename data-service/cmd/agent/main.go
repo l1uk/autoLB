@@ -148,6 +148,21 @@ func runHeartbeatLoop(ctx context.Context, logger *log.Logger, apiClient *client
 				continue
 			}
 
+			// RF-24: Check for available version updates after successful heartbeat.
+			// Errors are logged but do not crash the heartbeat loop.
+			versionInfo, err := apiClient.CheckVersion(ctx, agentVersion)
+			if err != nil {
+				logger.Printf("version check failed: %v", err)
+			} else {
+				if versionInfo.LatestVersion != versionInfo.CurrentVersion {
+					if versionInfo.AutoUpdateEnabled {
+						logger.Printf("WARNING: new data-service version available: %s (running %s) — auto-update pending manual implementation", versionInfo.LatestVersion, versionInfo.CurrentVersion)
+					} else {
+						logger.Printf("INFO: new data-service version available: %s (running %s) — auto-update disabled", versionInfo.LatestVersion, versionInfo.CurrentVersion)
+					}
+				}
+			}
+
 			for _, task := range tasks {
 				if err := executeTask(ctx, apiClient, cfg.WatchFolder, task); err != nil {
 					logger.Printf("task %s failed: %v", task.ID, err)

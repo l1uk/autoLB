@@ -503,3 +503,156 @@ func TestNewBuildsTLSConfig(t *testing.T) {
 		t.Fatalf("insecure skip verify must be false")
 	}
 }
+
+func TestCheckVersion(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			t.Fatalf("expected GET, got %s", r.Method)
+		}
+		if r.URL.Path != "/api/v1/data-service/version" {
+			t.Fatalf("unexpected path: %s", r.URL.Path)
+		}
+		if r.Header.Get("Authorization") != "Bearer session-1" {
+			t.Fatalf("missing bearer auth")
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"latest_version":        "1.2.0",
+			"auto_update_enabled":   true,
+			"min_supported_version": "1.0.0",
+		})
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{
+		BackendURL:   server.URL,
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "session-1",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	versionInfo, err := c.CheckVersion(context.Background(), "1.0.0")
+	if err != nil {
+		t.Fatalf("check version: %v", err)
+	}
+	if versionInfo.CurrentVersion != "1.0.0" {
+		t.Fatalf("unexpected current version: %q", versionInfo.CurrentVersion)
+	}
+	if versionInfo.LatestVersion != "1.2.0" {
+		t.Fatalf("unexpected latest version: %q", versionInfo.LatestVersion)
+	}
+	if !versionInfo.AutoUpdateEnabled {
+		t.Fatalf("auto update should be enabled")
+	}
+	if versionInfo.MinSupportedVersion != "1.0.0" {
+		t.Fatalf("unexpected min supported version: %q", versionInfo.MinSupportedVersion)
+	}
+}
+
+func TestCheckVersionAutoUpdateDisabled(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"latest_version":        "2.0.0",
+			"auto_update_enabled":   false,
+			"min_supported_version": "1.5.0",
+		})
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{
+		BackendURL:   server.URL,
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "session-1",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	versionInfo, err := c.CheckVersion(context.Background(), "1.0.0")
+	if err != nil {
+		t.Fatalf("check version: %v", err)
+	}
+	if versionInfo.AutoUpdateEnabled {
+		t.Fatalf("auto update should be disabled")
+	}
+	if versionInfo.LatestVersion != "2.0.0" {
+		t.Fatalf("unexpected latest version: %q", versionInfo.LatestVersion)
+	}
+}
+
+func TestCheckVersionHandlesUnauthorized(t *testing.T) {
+	var calls int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/api/v1/data-service/version":
+			calls++
+			if calls == 1 {
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"latest_version":      "1.5.0",
+				"auto_update_enabled": true,
+			})
+		case "/api/v1/data-service/auth":
+			_ = json.NewEncoder(w).Encode(map[string]string{
+				"session_token": "session-2",
+				"expires_at":    "2026-04-09T12:00:00Z",
+			})
+		default:
+			t.Fatalf("unexpected path: %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{
+		BackendURL:   server.URL,
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "expired",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	versionInfo, err := c.CheckVersion(context.Background(), "1.0.0")
+	if err != nil {
+		t.Fatalf("check version with auth retry: %v", err)
+	}
+	if versionInfo.LatestVersion != "1.5.0" {
+		t.Fatalf("unexpected latest version: %q", versionInfo.LatestVersion)
+	}
+	if calls != 2 {
+		t.Fatalf("expected 2 calls (1 unauthorized, 1 after auth), got %d", calls)
+	}
+}
+
+func TestCheckVersionHandlesServerError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{
+		BackendURL:   server.URL,
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "session-1",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	_, err = c.CheckVersion(context.Background(), "1.0.0")
+	if err == nil || !strings.Contains(err.Error(), "500") {
+		t.Fatalf("expected 500 error, got %v", err)
+	}
+}
+

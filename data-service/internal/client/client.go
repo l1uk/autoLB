@@ -87,6 +87,21 @@ type taskAckRequest struct {
 	ErrorMessage string `json:"error_message,omitempty"`
 }
 
+type versionResponse struct {
+	LatestVersion       string `json:"latest_version"`
+	AutoUpdateEnabled   bool   `json:"auto_update_enabled"`
+	MinSupportedVersion string `json:"min_supported_version"`
+}
+
+// VersionInfo holds version information from the server.
+// RF-24: Auto-update version check (Sprint 4 stub).
+type VersionInfo struct {
+	CurrentVersion      string
+	LatestVersion       string
+	AutoUpdateEnabled   bool
+	MinSupportedVersion string
+}
+
 type Client struct {
 	baseURL            string
 	httpClient         *http.Client
@@ -316,6 +331,28 @@ func (c *Client) TaskAck(ctx context.Context, taskID, statusText, errMessage str
 	return c.withAuthRetry(ctx, func(token string) error {
 		return c.doJSON(ctx, http.MethodPost, "/api/v1/data-service/task-ack", reqBody, nil, token)
 	})
+}
+
+// CheckVersion queries the server for the latest available agent version.
+// RF-24: Auto-update version check (Sprint 4 stub).
+// Download, signature verification, and binary replacement are Sprint 5+ work.
+// Returns VersionInfo including LatestVersion and AutoUpdateEnabled status.
+// This is called after each successful heartbeat to notify about updates.
+func (c *Client) CheckVersion(ctx context.Context, agentVersion string) (*VersionInfo, error) {
+	var resp versionResponse
+	err := c.withAuthRetry(ctx, func(token string) error {
+		return c.doJSON(ctx, http.MethodGet, "/api/v1/data-service/version", nil, &resp, token)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &VersionInfo{
+		CurrentVersion:      agentVersion,
+		LatestVersion:       resp.LatestVersion,
+		AutoUpdateEnabled:   resp.AutoUpdateEnabled,
+		MinSupportedVersion: resp.MinSupportedVersion,
+	}, nil
 }
 
 func (c *Client) withAuthRetry(ctx context.Context, fn func(token string) error) error {
