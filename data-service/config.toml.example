@@ -1,8 +1,20 @@
 backend_url = "http://host.docker.internal:8000"
 watch_folder = "C:/Autologbook/Watch"
 heartbeat_interval = "30s"
+
+# Path to PEM file for internal/self-signed CA.
+# Leave empty to use OS trust store. Never disable TLS verification.
 ca_cert_path = ""
+
+# Leave empty after first registration; filled in by register command.
 client_id = ""
+
+# Leave empty after first registration; filled in by register command, then stored in OS keystore.
 api_key = ""
+
+# Leave empty after first registration; managed by heartbeat/auth flow.
 session_token = ""
-registration_secret = "replace-with-your-shared-secret"
+
+# Required for first registration; provided out-of-band by system administrator.
+# Leave empty after first registration; not stored in keystore.
+registration_secret = ""

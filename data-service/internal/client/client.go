@@ -22,6 +22,9 @@ import (
 
 var errUnauthorized = errors.New("unauthorized")
 
+// ErrPermanentFailure indicates that the request failed in a way that should not be retried.
+var ErrPermanentFailure = errors.New("permanent failure: do not retry")
+
 type Decision string
 
 const (
@@ -37,10 +40,11 @@ type Task struct {
 }
 
 type registerRequest struct {
-	Hostname     string `json:"hostname"`
-	WatchFolder  string `json:"watch_folder"`
-	OSInfo       string `json:"os_info"`
-	AgentVersion string `json:"agent_version"`
+	Hostname           string `json:"hostname"`
+	WatchFolder        string `json:"watch_folder"`
+	OSInfo             string `json:"os_info"`
+	AgentVersion       string `json:"agent_version"`
+	RegistrationSecret string `json:"registration_secret"`
 }
 
 type registerResponse struct {
@@ -96,49 +100,51 @@ type Client struct {
 }
 
 func New(cfg config.Config) (*Client, error) {
-	tlsConfig, err := buildTLSConfig(cfg.CACertPath)
+	httpClient, err := buildHTTPClient(&cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Client{
-		baseURL: strings.TrimRight(cfg.BackendURL, "/"),
-		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
-			Transport: &http.Transport{
-				TLSClientConfig: tlsConfig,
-			},
-		},
-		clientID: cfg.ClientID,
-		apiKey:   cfg.APIKey,
-		session:  cfg.SessionToken,
+		baseURL:    strings.TrimRight(cfg.BackendURL, "/"),
+		httpClient: httpClient,
+		clientID:   cfg.ClientID,
+		apiKey:     cfg.APIKey,
+		session:    cfg.SessionToken,
 	}, nil
 }
 
-func buildTLSConfig(caCertPath string) (*tls.Config, error) {
+// buildHTTPClient constructs an HTTP client with proper TLS configuration.
+// If cfg.CACertPath is set, it loads the CA certificate; otherwise uses OS trust store.
+// InsecureSkipVerify is always false (SRS §8.1).
+func buildHTTPClient(cfg *config.Config) (*http.Client, error) {
 	tlsConfig := &tls.Config{
 		MinVersion:         tls.VersionTLS12,
-		InsecureSkipVerify: false,
-	}
-	if caCertPath == "" {
-		return tlsConfig, nil
+		InsecureSkipVerify: false, // SRS §8.1: MUST always be false — do not change
 	}
 
-	pemBytes, err := os.ReadFile(caCertPath)
-	if err != nil {
-		return nil, err
+	if cfg.CACertPath != "" {
+		pemBytes, err := os.ReadFile(cfg.CACertPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read CA certificate file: %w", err)
+		}
+
+		pool, err := x509.SystemCertPool()
+		if err != nil || pool == nil {
+			pool = x509.NewCertPool()
+		}
+		if !pool.AppendCertsFromPEM(pemBytes) {
+			return nil, errors.New("failed to append CA certificate: no valid PEM certificates found")
+		}
+		tlsConfig.RootCAs = pool
 	}
 
-	pool, err := x509.SystemCertPool()
-	if err != nil || pool == nil {
-		pool = x509.NewCertPool()
-	}
-	if !pool.AppendCertsFromPEM(pemBytes) {
-		return nil, errors.New("failed to append CA certificate")
-	}
-
-	tlsConfig.RootCAs = pool
-	return tlsConfig, nil
+	return &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
+	}, nil
 }
 
 func (c *Client) ClientID() string {
@@ -159,16 +165,44 @@ func (c *Client) setSessionToken(token string) {
 
 func (c *Client) Register(ctx context.Context, hostname, watchFolder, osInfo, agentVersion, registrationSecret string) (string, string, error) {
 	reqBody := registerRequest{
-		Hostname:     hostname,
-		WatchFolder:  watchFolder,
-		OSInfo:       osInfo,
-		AgentVersion: agentVersion,
+		Hostname:           hostname,
+		WatchFolder:        watchFolder,
+		OSInfo:             osInfo,
+		AgentVersion:       agentVersion,
+		RegistrationSecret: registrationSecret,
 	}
 
 	var resp registerResponse
-	if err := c.doJSON(ctx, http.MethodPost, "/api/v1/data-service/register", reqBody, &resp, "", map[string]string{
-		"X-Registration-Token": registrationSecret,
-	}); err != nil {
+	bodyBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", "", err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.url("/api/v1/data-service/register"), bytes.NewReader(bodyBytes))
+	if err != nil {
+		return "", "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	httpResp, err := c.httpClient.Do(req)
+	if err != nil {
+		return "", "", err
+	}
+	defer httpResp.Body.Close()
+
+	// Handle 403 explicitly (do NOT retry on 403)
+	if httpResp.StatusCode == http.StatusForbidden {
+		return "", "", fmt.Errorf(
+			"registration rejected (403): invalid registration_secret — "+
+				"check config.toml registration_secret field",
+		)
+	}
+
+	if err := decodeStatus(httpResp); err != nil {
+		return "", "", err
+	}
+
+	if err := json.NewDecoder(httpResp.Body).Decode(&resp); err != nil {
 		return "", "", err
 	}
 
@@ -268,6 +302,17 @@ func (c *Client) Upload(ctx context.Context, contextID, filename string, reader 
 			return err
 		}
 		defer resp.Body.Close()
+
+		// Handle permanent failures explicitly
+		if resp.StatusCode == http.StatusBadRequest {
+			respBody, _ := io.ReadAll(resp.Body)
+			errorMsg := strings.TrimSpace(string(respBody))
+			return fmt.Errorf("%w: HTTP 400 Bad Request: %s", ErrPermanentFailure, errorMsg)
+		}
+		if resp.StatusCode == http.StatusForbidden {
+			return fmt.Errorf("%w: HTTP 403 Forbidden (client revoked)", ErrPermanentFailure)
+		}
+
 		return decodeStatus(resp)
 	})
 }
@@ -344,6 +389,10 @@ func decodeStatus(resp *http.Response) error {
 	}
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return nil
+	}
+	// 429 is retryable (rate limit); let the caller handle retry logic
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return fmt.Errorf("rate limited: HTTP 429")
 	}
 	body, _ := io.ReadAll(resp.Body)
 	if len(body) == 0 {

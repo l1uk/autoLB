@@ -11,14 +11,21 @@ import (
 const DefaultHeartbeatInterval = 30 * time.Second
 
 type Config struct {
-	BackendURL        string        `toml:"backend_url"`
-	ClientID          string        `toml:"client_id"`
-	APIKey            string        `toml:"api_key"`
-	SessionToken      string        `toml:"session_token"`
-	RegistrationSecret string        `toml:"registration_secret"`
+	BackendURL string        `toml:"backend_url"`
+	ClientID   string        `toml:"client_id"`
+	APIKey     string        `toml:"api_key"`
+	SessionToken string `toml:"session_token"`
+	
+	// RegistrationSecret is used once at registration; zeroed from memory after Register() returns.
+	// Provided out-of-band by the system administrator; not stored in keystore.
+	RegistrationSecret string `toml:"registration_secret"`
+	
 	WatchFolder       string        `toml:"watch_folder"`
 	HeartbeatInterval time.Duration `toml:"heartbeat_interval"`
-	CACertPath        string        `toml:"ca_cert_path"`
+	
+	// CACertPath is an optional path to PEM file for internal/self-signed CA.
+	// If empty, Go uses OS trust store. Never disable TLS verification.
+	CACertPath string `toml:"ca_cert_path"`
 }
 
 func Load(path string) (Config, error) {

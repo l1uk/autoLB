@@ -15,12 +15,16 @@ import (
 )
 
 func TestRegister(t *testing.T) {
-	var registrationToken string
+	var registrationSecret string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/api/v1/data-service/register" {
 			t.Fatalf("unexpected path: %s", r.URL.Path)
 		}
-		registrationToken = r.Header.Get("X-Registration-Token")
+		var req registerRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Fatalf("decode request: %v", err)
+		}
+		registrationSecret = req.RegistrationSecret
 		_ = json.NewEncoder(w).Encode(map[string]string{
 			"client_id": "client-1",
 			"api_key":   "secret",
@@ -40,8 +44,8 @@ func TestRegister(t *testing.T) {
 	if clientID != "client-1" || apiKey != "secret" {
 		t.Fatalf("unexpected register response: %q %q", clientID, apiKey)
 	}
-	if registrationToken != "registration-secret" {
-		t.Fatalf("expected registration secret header, got %q", registrationToken)
+	if registrationSecret != "registration-secret" {
+		t.Fatalf("expected registration secret in body, got %q", registrationSecret)
 	}
 }
 
@@ -59,6 +63,26 @@ func TestRegisterHandlesServerError(t *testing.T) {
 	_, _, err = c.Register(context.Background(), "host", "/watch", "linux", "0.1.0", "registration-secret")
 	if err == nil || !strings.Contains(err.Error(), "500") {
 		t.Fatalf("expected 500 error, got %v", err)
+	}
+}
+
+func TestRegisterRejectsInvalidSecret(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "invalid registration_secret", http.StatusForbidden)
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{BackendURL: server.URL, WatchFolder: "/watch"})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	_, _, err = c.Register(context.Background(), "host", "/watch", "linux", "0.1.0", "wrong-secret")
+	if err == nil || !strings.Contains(err.Error(), "403") {
+		t.Fatalf("expected 403 error containing 'registration_secret', got %v", err)
+	}
+	if !strings.Contains(err.Error(), "registration_secret") {
+		t.Fatalf("expected error to mention registration_secret, got %v", err)
 	}
 }
 
@@ -255,6 +279,94 @@ func TestUploadHandlesServerError(t *testing.T) {
 	}
 }
 
+func TestUploadHandlesBadRequest(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "invalid context_id", http.StatusBadRequest)
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{
+		BackendURL:   server.URL,
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "session-1",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	err = c.Upload(context.Background(), "ctx-1", "file.txt", strings.NewReader("payload"))
+	if err == nil {
+		t.Fatalf("expected error for 400 status")
+	}
+	if !errors.Is(err, ErrPermanentFailure) {
+		t.Fatalf("expected ErrPermanentFailure, got %v", err)
+	}
+	if !strings.Contains(err.Error(), "invalid context_id") {
+		t.Fatalf("expected error message to contain 'invalid context_id', got %v", err)
+	}
+}
+
+func TestUploadHandlesForbidden(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "client revoked", http.StatusForbidden)
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{
+		BackendURL:   server.URL,
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "session-1",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	err = c.Upload(context.Background(), "ctx-1", "file.txt", strings.NewReader("payload"))
+	if err == nil {
+		t.Fatalf("expected error for 403 status")
+	}
+	if !errors.Is(err, ErrPermanentFailure) {
+		t.Fatalf("expected ErrPermanentFailure, got %v", err)
+	}
+	if !strings.Contains(err.Error(), "revoked") {
+		t.Fatalf("expected error message to mention revoked, got %v", err)
+	}
+}
+
+func TestUploadHandlesRateLimit(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "too many requests", http.StatusTooManyRequests)
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{
+		BackendURL:   server.URL,
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "session-1",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	err = c.Upload(context.Background(), "ctx-1", "file.txt", strings.NewReader("payload"))
+	if err == nil {
+		t.Fatalf("expected error for 429 status")
+	}
+	// 429 should NOT be ErrPermanentFailure; it should be retryable
+	if errors.Is(err, ErrPermanentFailure) {
+		t.Fatalf("429 should not be treated as permanent failure")
+	}
+	if !strings.Contains(err.Error(), "429") {
+		t.Fatalf("expected error message to contain '429', got %v", err)
+	}
+}
+
 func TestNewBuildsTLSConfig(t *testing.T) {
 	c, err := New(config.Config{BackendURL: "https://backend", WatchFolder: "/watch"})
 	if err != nil {
@@ -270,5 +382,40 @@ func TestNewBuildsTLSConfig(t *testing.T) {
 	}
 	if transport.TLSClientConfig.InsecureSkipVerify {
 		t.Fatalf("insecure skip verify must be false")
+	}
+}
+
+func TestBuildHTTPClientWithInvalidCAPath(t *testing.T) {
+	cfg := &config.Config{
+		BackendURL:  "https://backend",
+		WatchFolder: "/watch",
+		CACertPath:  "/nonexistent/ca.pem",
+	}
+	_, err := buildHTTPClient(cfg)
+	if err == nil {
+		t.Fatalf("expected error for nonexistent CA file")
+	}
+	if !strings.Contains(err.Error(), "failed to read") {
+		t.Fatalf("expected error about reading file, got %v", err)
+	}
+}
+
+func TestBuildHTTPClientAlwaysDisablesInsecureSkipVerify(t *testing.T) {
+	cfg := &config.Config{
+		BackendURL:  "https://backend",
+		WatchFolder: "/watch",
+		CACertPath:  "",
+	}
+	httpClient, err := buildHTTPClient(cfg)
+	if err != nil {
+		t.Fatalf("buildHTTPClient: %v", err)
+	}
+
+	transport, ok := httpClient.Transport.(*http.Transport)
+	if !ok {
+		t.Fatalf("unexpected transport type")
+	}
+	if transport.TLSClientConfig.InsecureSkipVerify {
+		t.Fatalf("InsecureSkipVerify must always be false per SRS §8.1")
 	}
 }
