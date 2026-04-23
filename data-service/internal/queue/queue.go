@@ -10,6 +10,8 @@ import (
 	"os"
 	"time"
 
+	"autologbook/data-service/internal/client"
+
 	_ "modernc.org/sqlite"
 )
 
@@ -18,8 +20,7 @@ const (
 	baseBackoff    = 500 * time.Millisecond
 	maxBackoff     = 30 * time.Second
 	defaultMaxTry  = 5
-	statusQueued   = "queued"
-	statusRetrying = "retrying"
+	statusPending  = "pending"
 	statusFailed   = "failed"
 )
 
@@ -37,6 +38,8 @@ type Item struct {
 	LastAttempt *time.Time
 	Error       string
 }
+
+type QueueItem = Item
 
 type Queue struct {
 	db          *sql.DB
@@ -81,7 +84,7 @@ func (q *Queue) Enqueue(ctx context.Context, item Item) error {
 		item.ContextID,
 		item.LocalPath,
 		item.Filename,
-		statusQueued,
+		statusPending,
 	)
 	return err
 }
@@ -95,28 +98,21 @@ func (q *Queue) ProcessNext(ctx context.Context) (bool, error) {
 		return false, err
 	}
 
-	now := q.now().UTC()
-	newAttempts := item.Attempts + 1
-	_, err = q.db.ExecContext(
-		ctx,
-		`UPDATE uploads SET attempts = ?, last_attempt = ?, status = ?, error = '' WHERE id = ?`,
-		newAttempts,
-		now.Format(time.RFC3339Nano),
-		statusRetrying,
-		item.ID,
-	)
-	if err != nil {
-		return true, err
-	}
-
 	file, err := os.Open(item.LocalPath)
 	if err != nil {
-		return true, q.markFailure(ctx, item.ID, newAttempts, err)
+		return true, q.markRetryableFailure(ctx, item.ID, item.Attempts, err)
 	}
 	defer file.Close()
 
-	if err := q.uploader.Upload(ctx, item.ContextID, item.Filename, file); err != nil {
-		return true, q.markFailure(ctx, item.ID, newAttempts, err)
+	uploadErr := q.uploader.Upload(ctx, item.ContextID, item.Filename, file)
+	if uploadErr != nil {
+		if errors.Is(uploadErr, client.ErrPermanentFailure) {
+			if err := q.MarkFailed(ctx, item.ID, uploadErr.Error()); err != nil {
+				return true, err
+			}
+			return true, uploadErr
+		}
+		return true, q.markRetryableFailure(ctx, item.ID, item.Attempts, uploadErr)
 	}
 
 	_, err = q.db.ExecContext(ctx, `DELETE FROM uploads WHERE id = ?`, item.ID)
@@ -130,11 +126,30 @@ func (q *Queue) initSchema() error {
 			context_id TEXT NOT NULL,
 			local_path TEXT NOT NULL,
 			filename TEXT NOT NULL,
-			status TEXT NOT NULL,
+			status TEXT NOT NULL DEFAULT 'pending',
 			attempts INTEGER NOT NULL DEFAULT 0,
 			last_attempt TEXT,
 			error TEXT NOT NULL DEFAULT ''
 		)
+	`)
+	if err != nil {
+		return err
+	}
+
+	statusExists, err := q.columnExists("uploads", "status")
+	if err != nil {
+		return err
+	}
+	if !statusExists {
+		if _, err := q.db.Exec(`ALTER TABLE uploads ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'`); err != nil {
+			return err
+		}
+	}
+
+	_, err = q.db.Exec(`
+		UPDATE uploads
+		SET status = 'pending'
+		WHERE status IS NULL OR status NOT IN ('pending', 'failed')
 	`)
 	return err
 }
@@ -144,9 +159,9 @@ func (q *Queue) nextEligible(ctx context.Context) (Item, error) {
 		ctx,
 		`SELECT id, context_id, local_path, filename, status, attempts, last_attempt, error
 		 FROM uploads
-		 WHERE status != ?
+		 WHERE status = ?
 		 ORDER BY id ASC`,
-		statusFailed,
+		statusPending,
 	)
 	if err != nil {
 		return Item{}, err
@@ -190,23 +205,115 @@ func (q *Queue) nextEligible(ctx context.Context) (Item, error) {
 	return Item{}, sql.ErrNoRows
 }
 
-func (q *Queue) markFailure(ctx context.Context, id int64, attempts int, uploadErr error) error {
-	nextStatus := statusRetrying
-	if attempts >= q.maxAttempts {
-		nextStatus = statusFailed
-	}
-
+func (q *Queue) markRetryableFailure(ctx context.Context, id int64, previousAttempts int, uploadErr error) error {
+	now := q.now().UTC().Format(time.RFC3339Nano)
+	attempts := previousAttempts + 1
 	_, err := q.db.ExecContext(
 		ctx,
-		`UPDATE uploads SET status = ?, error = ? WHERE id = ?`,
-		nextStatus,
+		`UPDATE uploads SET attempts = ?, last_attempt = ?, status = ?, error = ? WHERE id = ?`,
+		attempts,
+		now,
+		statusPending,
 		uploadErr.Error(),
 		id,
 	)
 	if err != nil {
 		return fmt.Errorf("update failed upload: %w", err)
 	}
+	if attempts >= q.maxAttempts {
+		if err := q.MarkFailed(ctx, id, uploadErr.Error()); err != nil {
+			return err
+		}
+	}
 	return uploadErr
+}
+
+func (q *Queue) MarkFailed(ctx context.Context, id int64, reason string) error {
+	_, err := q.db.ExecContext(
+		ctx,
+		`UPDATE uploads SET status = ?, error = ?, last_attempt = ? WHERE id = ?`,
+		statusFailed,
+		reason,
+		q.now().UTC().Format(time.RFC3339Nano),
+		id,
+	)
+	return err
+}
+
+func (q *Queue) ListFailed(ctx context.Context) ([]QueueItem, error) {
+	rows, err := q.db.QueryContext(
+		ctx,
+		`SELECT id, context_id, local_path, filename, status, attempts, last_attempt, error
+		 FROM uploads
+		 WHERE status = ?
+		 ORDER BY id`,
+		statusFailed,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	failed := make([]QueueItem, 0)
+	for rows.Next() {
+		var item QueueItem
+		var lastAttempt sql.NullString
+		if err := rows.Scan(
+			&item.ID,
+			&item.ContextID,
+			&item.LocalPath,
+			&item.Filename,
+			&item.Status,
+			&item.Attempts,
+			&lastAttempt,
+			&item.Error,
+		); err != nil {
+			return nil, err
+		}
+		if lastAttempt.Valid {
+			parsed, err := time.Parse(time.RFC3339Nano, lastAttempt.String)
+			if err != nil {
+				return nil, err
+			}
+			item.LastAttempt = &parsed
+		}
+		failed = append(failed, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return failed, nil
+}
+
+func (q *Queue) columnExists(tableName, columnName string) (bool, error) {
+	rows, err := q.db.Query(fmt.Sprintf(`PRAGMA table_info(%s)`, tableName))
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			cid        int
+			name       string
+			colType    string
+			notNull    int
+			defaultVal sql.NullString
+			pk         int
+		)
+		if err := rows.Scan(&cid, &name, &colType, &notNull, &defaultVal, &pk); err != nil {
+			return false, err
+		}
+		if name == columnName {
+			return true, nil
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return false, err
+	}
+	return false, nil
 }
 
 func backoffForAttempt(attempts int) time.Duration {
