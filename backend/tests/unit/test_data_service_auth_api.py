@@ -41,8 +41,8 @@ async def test_data_service_register_happy_path(async_client, db_session) -> Non
             "watch_folder": "C:/watch",
             "os_info": "Windows 11",
             "agent_version": "0.1.0",
+            "registration_secret": "test-registration-token",
         },
-        headers={"X-Registration-Token": "test-registration-token"},
     )
 
     assert response.status_code == 201
@@ -126,7 +126,7 @@ async def test_data_service_protected_endpoint_happy_path(async_client, db_sessi
 
 
 @pytest.mark.asyncio
-async def test_data_service_register_rejects_missing_registration_token(async_client) -> None:
+async def test_data_service_register_rejects_wrong_registration_secret(async_client) -> None:
     response = await async_client.post(
         "/api/v1/data-service/register",
         json={
@@ -134,15 +134,16 @@ async def test_data_service_register_rejects_missing_registration_token(async_cl
             "watch_folder": "C:/watch",
             "os_info": "Windows 11",
             "agent_version": "0.1.0",
+            "registration_secret": "wrong-secret",
         },
     )
 
     assert response.status_code == 403
-    assert response.json()["detail"] == "Invalid registration token"
+    assert response.json()["detail"] == "Invalid registration_secret"
 
 
 @pytest.mark.asyncio
-async def test_data_service_register_rejects_wrong_registration_token(async_client) -> None:
+async def test_data_service_register_rejects_missing_registration_secret(async_client) -> None:
     response = await async_client.post(
         "/api/v1/data-service/register",
         json={
@@ -151,11 +152,9 @@ async def test_data_service_register_rejects_wrong_registration_token(async_clie
             "os_info": "Windows 11",
             "agent_version": "0.1.0",
         },
-        headers={"X-Registration-Token": "wrong-token"},
     )
 
-    assert response.status_code == 403
-    assert response.json()["detail"] == "Invalid registration token"
+    assert response.status_code == 422
 
 
 @pytest.mark.asyncio

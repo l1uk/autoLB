@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import hmac as hmac_lib
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,6 +32,7 @@ class DataServiceRegisterRequest(BaseModel):
     watch_folder: str
     os_info: str
     agent_version: str
+    registration_secret: str
 
 
 class DataServiceRegisterResponse(BaseModel):
@@ -48,26 +50,34 @@ class DataServiceAuthResponse(BaseModel):
     expires_at: datetime
 
 
-def verify_registration_token(
-    x_registration_token: str | None = Header(default=None, alias="X-Registration-Token"),
-) -> None:
-    if not settings.registration_token or x_registration_token != settings.registration_token:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid registration token",
-        )
-
-
 @router.post(
     "/register",
     response_model=DataServiceRegisterResponse,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(verify_registration_token)],
 )
 async def register_data_service_client(
     payload: DataServiceRegisterRequest,
     db_session: AsyncSession = Depends(get_db_session),
 ) -> DataServiceRegisterResponse:
+    """
+    Register a new data-service client (RFC-14).
+    
+    Validates registration_secret using constant-time comparison (SEC-1, §8.1).
+    The registration_secret must match the REGISTRATION_SECRET environment variable
+    and must be provided out-of-band to the data-service installer.
+    
+    Raises HTTPException(403) if registration_secret is invalid.
+    """
+    # FIRST operation: validate registration_secret using constant-time comparison (SEC-1)
+    if not hmac_lib.compare_digest(
+        payload.registration_secret.encode("utf-8"),
+        settings.REGISTRATION_SECRET.encode("utf-8"),
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid registration_secret",
+        )
+
     api_key = generate_api_key()
     client = DataServiceClient(
         hostname=payload.hostname,
