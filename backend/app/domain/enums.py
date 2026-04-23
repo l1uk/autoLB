@@ -76,3 +76,21 @@ class UserRole(StrEnum):
     UNIT_MANAGER = "UNIT_MANAGER"
     OPERATOR = "OPERATOR"
     READER = "READER"
+
+
+class ContactRole(StrEnum):
+    RESPONSIBLE = "RESPONSIBLE"
+    CUSTOMER = "CUSTOMER"
+    OTHER = "OTHER"
+
+
+class UnitRole(StrEnum):
+    MANAGER = "MANAGER"
+    OPERATOR = "OPERATOR"
+    READER = "READER"
+
+
+class CommentTargetType(StrEnum):
+    PROTOCOL = "PROTOCOL"
+    SAMPLE = "SAMPLE"
+    PICTURE = "PICTURE"

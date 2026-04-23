@@ -10,6 +10,7 @@ from app.domain.models import (
     AccessPolicy,
     Attachment,
     CalibrationConfig,
+    Comment,
     DataServiceClient,
     DataServiceTask,
     ExperimentConfiguration,
@@ -20,6 +21,7 @@ from app.domain.models import (
     OpticalImage,
     Protocol,
     Sample,
+    UnitPolicy,
     User,
     Video,
 )
@@ -54,7 +56,7 @@ def make_protocol(access_policy_id):
         status=ProtocolStatus.DRAFT,
         acquisition_status=AcquisitionStatus.ONGOING,
         access_policy_id=access_policy_id,
-        yaml_customization={},
+        project="Project A",
     )
 
 
@@ -75,9 +77,6 @@ def make_sample(access_policy_id):
         (Sample, {}),
         (Protocol, {}),
         (Attachment, {}),
-        (OpticalImage, {}),
-        (NavigationImage, {}),
-        (Video, {}),
         (ExperimentConfiguration, {}),
         (DataServiceClient, {}),
         (DataServiceTask, {}),
@@ -192,3 +191,31 @@ async def test_sqlite_metadata_round_trip(db_session) -> None:
 
     assert persisted_protocol.protocol_number == 1
     assert persisted_protocol.acquisition_status == AcquisitionStatus.ONGOING
+
+
+def test_protocol_item_mixin_columns_present_on_protocol_items() -> None:
+    protocol_item_models = [
+        MicroscopePicture,
+        Attachment,
+        OpticalImage,
+        NavigationImage,
+        Video,
+    ]
+
+    for model in protocol_item_models:
+        assert "caption" in model.__table__.c
+        assert "description" in model.__table__.c
+        assert "extra_info" in model.__table__.c
+
+
+def test_comment_parent_id_nullable() -> None:
+    assert Comment.__table__.c.parent_id.nullable is True
+
+
+def test_unit_policy_unit_id_nullable() -> None:
+    assert UnitPolicy.__table__.c.unit_id.nullable is True
+
+
+def test_protocol_removed_fields_not_present() -> None:
+    assert not hasattr(Protocol, "yaml_customization")
+    assert not hasattr(Protocol, "responsible")

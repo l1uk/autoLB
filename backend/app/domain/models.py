@@ -10,12 +10,14 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Float,
     Integer,
     Sequence,
     String,
     Text,
     Uuid,
 )
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON, TypeDecorator
@@ -34,6 +36,8 @@ from app.domain.enums import (
     ProtocolStatus,
     UserRole,
 )
+from app.domain.mixins import ProtocolItemMixin
+from app.domain.project_contact import protocol_contacts
 
 
 # acquisition_status transitions are MANUAL ONLY per RF-19.
@@ -138,7 +142,7 @@ class Protocol(Base):
         "status",
         "acquisition_status",
         "access_policy_id",
-        "yaml_customization",
+        "project",
     )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
@@ -162,17 +166,29 @@ class Protocol(Base):
         ForeignKey("access_policies.id", ondelete="RESTRICT"),
         nullable=False,
     )
-    yaml_customization: Mapped[dict[str, Any]] = mapped_column(jsonb_type, nullable=False, default=dict)
+    operator_id: Mapped[UUID | None] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("operators.id"),
+        nullable=True,
+    )
+    commissioned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    project: Mapped[str] = mapped_column(String(255), nullable=False)
+    introduction: Mapped[str | None] = mapped_column(Text, nullable=True)
+    conclusion: Mapped[str | None] = mapped_column(Text, nullable=True)
     html_export_cache: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     access_policy: Mapped["AccessPolicy"] = relationship(back_populates="protocols")
+    contacts: Mapped[list["ProjectContact"]] = relationship(
+        secondary=protocol_contacts,
+        back_populates="protocols",
+    )
     attachments: Mapped[list["Attachment"]] = relationship(back_populates="protocol")
     optical_images: Mapped[list["OpticalImage"]] = relationship(back_populates="protocol")
     navigation_images: Mapped[list["NavigationImage"]] = relationship(back_populates="protocol")
     videos: Mapped[list["Video"]] = relationship(back_populates="protocol")
 
 
-class MicroscopePicture(Base):
+class MicroscopePicture(ProtocolItemMixin, Base):
     __tablename__ = "microscope_pictures"
     __required_fields__ = (
         "params",
@@ -198,6 +214,11 @@ class MicroscopePicture(Base):
         ForeignKey("calibration_configs.picture_type", ondelete="RESTRICT"),
         nullable=False,
     )
+    # Populated by EmbeddingHandler (Sprint 4+); null until computed
+    embedding: Mapped[list[float] | None] = mapped_column(
+        postgresql.ARRAY(Float).with_variant(JSON(), "sqlite"),
+        nullable=True,
+    )
 
     calibration_config: Mapped["CalibrationConfig"] = relationship(back_populates="microscope_pictures")
     derivatives: Mapped[list["ImageDerivative"]] = relationship(back_populates="microscope_picture")
@@ -221,7 +242,7 @@ class ImageDerivative(Base):
     microscope_picture: Mapped["MicroscopePicture"] = relationship(back_populates="derivatives")
 
 
-class Attachment(Base):
+class Attachment(ProtocolItemMixin, Base):
     __tablename__ = "attachments"
     __table_args__ = (
         CheckConstraint(
@@ -247,7 +268,7 @@ class Attachment(Base):
     sample: Mapped["Sample | None"] = relationship(back_populates="attachments")
 
 
-class OpticalImage(Base):
+class OpticalImage(ProtocolItemMixin, Base):
     __tablename__ = "optical_images"
     __table_args__ = (
         CheckConstraint(
@@ -255,7 +276,7 @@ class OpticalImage(Base):
             name="ck_optical_images_has_owner",
         ),
     )
-    __required_fields__ = ("caption", "description", "extra_info")
+    __required_fields__ = ()
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
     protocol_id: Mapped[UUID | None] = mapped_column(
@@ -268,15 +289,12 @@ class OpticalImage(Base):
         ForeignKey("samples.id", ondelete="CASCADE"),
         nullable=True,
     )
-    caption: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
-    extra_info: Mapped[dict[str, Any]] = mapped_column(jsonb_type, nullable=False, default=dict)
 
     protocol: Mapped["Protocol | None"] = relationship(back_populates="optical_images")
     sample: Mapped["Sample | None"] = relationship(back_populates="optical_images")
 
 
-class NavigationImage(Base):
+class NavigationImage(ProtocolItemMixin, Base):
     __tablename__ = "navigation_images"
     __table_args__ = (
         CheckConstraint(
@@ -284,7 +302,7 @@ class NavigationImage(Base):
             name="ck_navigation_images_has_owner",
         ),
     )
-    __required_fields__ = ("caption", "description", "extra_info")
+    __required_fields__ = ()
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
     protocol_id: Mapped[UUID | None] = mapped_column(
@@ -297,15 +315,11 @@ class NavigationImage(Base):
         ForeignKey("samples.id", ondelete="CASCADE"),
         nullable=True,
     )
-    caption: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
-    extra_info: Mapped[dict[str, Any]] = mapped_column(jsonb_type, nullable=False, default=dict)
-
     protocol: Mapped["Protocol | None"] = relationship(back_populates="navigation_images")
     sample: Mapped["Sample | None"] = relationship(back_populates="navigation_images")
 
 
-class Video(Base):
+class Video(ProtocolItemMixin, Base):
     __tablename__ = "videos"
     __table_args__ = (
         CheckConstraint(
@@ -313,7 +327,7 @@ class Video(Base):
             name="ck_videos_has_owner",
         ),
     )
-    __required_fields__ = ("caption", "description", "extra_info")
+    __required_fields__ = ()
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
     protocol_id: Mapped[UUID | None] = mapped_column(
@@ -326,10 +340,6 @@ class Video(Base):
         ForeignKey("samples.id", ondelete="CASCADE"),
         nullable=True,
     )
-    caption: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
-    extra_info: Mapped[dict[str, Any]] = mapped_column(jsonb_type, nullable=False, default=dict)
-
     protocol: Mapped["Protocol | None"] = relationship(back_populates="videos")
     sample: Mapped["Sample | None"] = relationship(back_populates="videos")
 
@@ -414,6 +424,15 @@ class FileEvent(Base):
         Enum(FileEventDecision, name="file_event_decision_enum"),
         nullable=False,
     )
+    # Hex SHA-256 of received file bytes, computed server-side by ReceiveHandler before MinIO write (SRS v2.10 SEC-3)
+    sha256: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class Unit(Base):
+    __tablename__ = "units"
+
+    id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
 
 
 class User(Base):
@@ -430,3 +449,10 @@ class User(Base):
     unit_id: Mapped[UUID | None] = mapped_column(Uuid(as_uuid=True), nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+
+from app.domain.comment import Comment  # noqa: E402,F401
+from app.domain.operator import Operator  # noqa: E402,F401
+from app.domain.project_contact import ProjectContact  # noqa: E402,F401
+from app.domain.unit_membership import UnitMembership  # noqa: E402,F401
+from app.domain.unit_policy import UnitPolicy  # noqa: E402,F401
