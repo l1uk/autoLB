@@ -122,11 +122,13 @@ def upgrade() -> None:
                existing_type=postgresql.JSONB(astext_type=sa.Text()),
                nullable=True)
     op.add_column('protocols', sa.Column('operator_id', sa.Uuid(), nullable=True))
-    op.add_column('protocols', sa.Column('commissioned', sa.Boolean(), nullable=False))
-    op.add_column('protocols', sa.Column('project', sa.String(length=255), nullable=False))
+    op.add_column('protocols', sa.Column('commissioned', sa.Boolean(), server_default=sa.false(), nullable=False))
+    op.add_column('protocols', sa.Column('project', sa.String(length=255), server_default='', nullable=False))
     op.add_column('protocols', sa.Column('introduction', sa.Text(), nullable=True))
     op.add_column('protocols', sa.Column('conclusion', sa.Text(), nullable=True))
     op.create_foreign_key(None, 'protocols', 'operators', ['operator_id'], ['id'])
+    op.alter_column('protocols', 'commissioned', server_default=None)
+    op.alter_column('protocols', 'project', server_default=None)
     op.drop_column('protocols', 'yaml_customization')
     op.alter_column('videos', 'caption',
                existing_type=sa.VARCHAR(length=255),
