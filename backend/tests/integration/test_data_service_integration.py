@@ -64,6 +64,7 @@ async def test_heartbeat_delivers_pending_tasks_with_live_services(live_app_clie
             "watch_folder": "/data/watch",
             "os_info": "Linux",
             "agent_version": "0.1.0",
+            "registration_secret": "test-registration-token",
         },
         headers={"X-Registration-Token": "test-registration-token"},
     )
@@ -120,6 +121,7 @@ async def test_task_ack_updates_task_status_with_live_services(live_app_client) 
             "watch_folder": "/data/watch",
             "os_info": "Linux",
             "agent_version": "0.1.0",
+            "registration_secret": "test-registration-token",
         },
         headers={"X-Registration-Token": "test-registration-token"},
     )
