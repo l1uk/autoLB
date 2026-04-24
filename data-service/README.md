@@ -101,6 +101,14 @@ To compile the agent from source:
     go build -ldflags="-H windowsgui -s -w" -o agent.exe main.go
     ```
 
+### Dockerized Development
+
+The `data-service/docker-compose.yml` dev service enables `CGO_ENABLED=1` so the standard test command supports the Go race detector:
+
+```bash
+docker compose -f data-service/docker-compose.yml run --rm agent go test ./... -v -race
+```
+
 ---
 
 Does this documentation look complete enough for your laboratory's IT requirements, or should we add a section on how to troubleshoot common network errors?

@@ -146,6 +146,17 @@ func runHeartbeatLoop(ctx context.Context, logger *log.Logger, apiClient *client
 				continue
 			}
 
+			versionInfo, err := apiClient.CheckVersion(ctx, agentVersion)
+			if err != nil {
+				logger.Printf("warn: version check failed (non-fatal): %v", err)
+			} else if versionInfo.LatestVersion != agentVersion {
+				if versionInfo.AutoUpdateEnabled {
+					logger.Printf("warn: new data-service version available: %s (running: %s) - auto-update not yet implemented (RF-24 Sprint 5+)", versionInfo.LatestVersion, agentVersion)
+				} else {
+					logger.Printf("info: new data-service version available: %s (running: %s) - auto-update disabled", versionInfo.LatestVersion, agentVersion)
+				}
+			}
+
 			for _, task := range tasks {
 				if err := executeTask(ctx, apiClient, cfg.WatchFolder, task); err != nil {
 					logger.Printf("task %s failed: %v", task.ID, err)

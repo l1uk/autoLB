@@ -72,6 +72,14 @@ type heartbeatResponse struct {
 	Tasks []Task `json:"tasks"`
 }
 
+type VersionInfo struct {
+	CurrentVersion    string  `json:"current_version"`
+	LatestVersion     string  `json:"latest_version"`
+	AutoUpdateEnabled bool    `json:"auto_update_enabled"`
+	DownloadURL       *string `json:"download_url"`
+	Signature         *string `json:"signature"`
+}
+
 type fileNotifyRequest struct {
 	RelativePath string `json:"relative_path"`
 	Filename     string `json:"filename"`
@@ -241,6 +249,40 @@ func (c *Client) Heartbeat(ctx context.Context, clientID, agentVersion string, s
 		return nil, err
 	}
 	return resp.Tasks, nil
+}
+
+func (c *Client) CheckVersion(ctx context.Context, agentVersion string) (*VersionInfo, error) {
+	var resp VersionInfo
+
+	err := c.withAuthRetry(ctx, func(token string) error {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.url("/api/v1/data-service/version"), nil)
+		if err != nil {
+			return err
+		}
+		if token != "" {
+			req.Header.Set("Authorization", "Bearer "+token)
+		}
+		if agentVersion != "" {
+			req.Header.Set("X-Agent-Version", agentVersion)
+		}
+
+		httpResp, err := c.httpClient.Do(req)
+		if err != nil {
+			return err
+		}
+		defer httpResp.Body.Close()
+
+		if err := decodeStatus(httpResp); err != nil {
+			return err
+		}
+
+		return json.NewDecoder(httpResp.Body).Decode(&resp)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
 }
 
 func (c *Client) FileNotify(ctx context.Context, relativePath, filename string, fileSize int64) (Decision, string, error) {

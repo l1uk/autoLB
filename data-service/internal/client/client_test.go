@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"autologbook/data-service/internal/config"
 )
@@ -417,5 +418,108 @@ func TestBuildHTTPClientAlwaysDisablesInsecureSkipVerify(t *testing.T) {
 	}
 	if transport.TLSClientConfig.InsecureSkipVerify {
 		t.Fatalf("InsecureSkipVerify must always be false per SRS §8.1")
+	}
+}
+
+func TestCheckVersionParsesResponse(t *testing.T) {
+	downloadURL := "https://example.test/agent.bin"
+	signature := "base64-signature"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/data-service/version" {
+			t.Fatalf("unexpected path: %s", r.URL.Path)
+		}
+		if r.Header.Get("Authorization") != "Bearer session-1" {
+			t.Fatalf("missing bearer auth")
+		}
+		if got := r.Header.Get("X-Agent-Version"); got != "0.1.0" {
+			t.Fatalf("expected X-Agent-Version header, got %q", got)
+		}
+
+		_ = json.NewEncoder(w).Encode(VersionInfo{
+			CurrentVersion:    "0.1.0",
+			LatestVersion:     "0.2.0",
+			AutoUpdateEnabled: true,
+			DownloadURL:       &downloadURL,
+			Signature:         &signature,
+		})
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{
+		BackendURL:   server.URL,
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "session-1",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	versionInfo, err := c.CheckVersion(context.Background(), "0.1.0")
+	if err != nil {
+		t.Fatalf("check version: %v", err)
+	}
+	if versionInfo == nil {
+		t.Fatalf("expected version info, got nil")
+	}
+	if versionInfo.CurrentVersion != "0.1.0" || versionInfo.LatestVersion != "0.2.0" || !versionInfo.AutoUpdateEnabled {
+		t.Fatalf("unexpected version info: %+v", versionInfo)
+	}
+	if versionInfo.DownloadURL == nil || *versionInfo.DownloadURL != downloadURL {
+		t.Fatalf("unexpected download url: %v", versionInfo.DownloadURL)
+	}
+	if versionInfo.Signature == nil || *versionInfo.Signature != signature {
+		t.Fatalf("unexpected signature: %v", versionInfo.Signature)
+	}
+}
+
+func TestCheckVersionHandlesServerError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "boom", http.StatusInternalServerError)
+	}))
+	defer server.Close()
+
+	c, err := New(config.Config{
+		BackendURL:   server.URL,
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "session-1",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	versionInfo, err := c.CheckVersion(context.Background(), "0.1.0")
+	if err == nil {
+		t.Fatalf("expected error for 500 status")
+	}
+	if versionInfo != nil {
+		t.Fatalf("expected nil version info on error, got %+v", versionInfo)
+	}
+}
+
+func TestCheckVersionHandlesUnreachableServer(t *testing.T) {
+	c, err := New(config.Config{
+		BackendURL:   "http://127.0.0.1:1",
+		WatchFolder:  "/watch",
+		ClientID:     "client-1",
+		APIKey:       "secret",
+		SessionToken: "session-1",
+	})
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	c.httpClient.Timeout = 200 * time.Millisecond
+
+	versionInfo, err := c.CheckVersion(context.Background(), "0.1.0")
+	if err == nil {
+		t.Fatalf("expected error for unreachable server")
+	}
+	if versionInfo != nil {
+		t.Fatalf("expected nil version info on error, got %+v", versionInfo)
 	}
 }
